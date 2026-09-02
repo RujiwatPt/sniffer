@@ -48,9 +48,9 @@ export const LiveSimulationTicker: React.FC = () => {
   };
 
   return (
-    <div className="px-4 py-2 border-b border-[#2f3336] bg-[#0c0d0e] flex items-center justify-between text-xs">
-      <div className="flex items-center space-x-2 truncate">
-        <span className="relative flex h-2 w-2">
+    <div className="px-3 sm:px-4 py-2 border-b border-[#2f3336] bg-[#0c0d0e] flex items-center justify-between text-xs">
+      <div className="flex items-center space-x-2 truncate pr-2">
+        <span className="relative flex h-2 w-2 shrink-0">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
           <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
         </span>
@@ -60,13 +60,15 @@ export const LiveSimulationTicker: React.FC = () => {
             <Radio className="w-3 h-3 animate-spin shrink-0" />
             <span className="truncate">
               {typingNames.slice(0, 2).join(', ')}{' '}
-              {typingNames.length > 2 ? `and ${typingNames.length - 2} others` : ''} typing...
+              {typingNames.length > 2 ? `+${typingNames.length - 2}` : ''} typing...
             </span>
           </span>
         ) : (
-          <span className="text-[#71767b] truncate">
-            Simulation: <span className="text-[#e7e9ea] font-medium">{settings.provider.toUpperCase()}</span> ·{' '}
-            {characters.length} characters active in {activeWorld.name}
+          <span className="text-[#71767b] truncate text-[11px] sm:text-xs">
+            <span className="text-[#e7e9ea] font-medium">{settings.provider.toUpperCase()}</span> ·{' '}
+            <span className="text-[#e7e9ea]">{characters.length}</span>{' '}
+            <span className="hidden sm:inline">characters active in {activeWorld.name}</span>
+            <span className="sm:hidden">personas active</span>
           </span>
         )}
       </div>
@@ -77,7 +79,7 @@ export const LiveSimulationTicker: React.FC = () => {
         title="Trigger an autonomous character take"
       >
         <Zap className="w-3 h-3 text-amber-400" />
-        <span className="hidden sm:inline">Simulate Pulse</span>
+        <span>Pulse</span>
       </button>
     </div>
   );

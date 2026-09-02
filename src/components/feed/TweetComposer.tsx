@@ -189,7 +189,7 @@ export const TweetComposer: React.FC<TweetComposerProps> = ({
 
   return (
     <div
-      className={`flex space-x-3 px-4 py-3 ${
+      className={`flex space-x-3 px-3 sm:px-4 py-3 ${
         isModal ? '' : 'border-b border-[#2f3336]'
       }`}
     >

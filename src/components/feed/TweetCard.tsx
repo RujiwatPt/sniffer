@@ -115,7 +115,7 @@ export const TweetCard: React.FC<TweetCardProps> = ({
   return (
     <article
       onClick={handleCardClick}
-      className={`relative px-4 pt-3 pb-2 transition-colors cursor-pointer border-b border-[#2f3336] ${
+      className={`relative px-3 sm:px-4 pt-3 pb-2 transition-colors cursor-pointer border-b border-[#2f3336] ${
         isMainThreadView ? 'bg-transparent' : 'hover:bg-[#080808]'
       }`}
     >

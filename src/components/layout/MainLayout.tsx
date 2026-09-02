@@ -16,7 +16,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         <Sidebar />
 
         {/* Center Main Viewport */}
-        <main className="flex-1 min-h-screen border-r border-[#2f3336] max-w-[600px] w-full pb-24 lg:pb-0 flex flex-col">
+        <main className="flex-1 min-h-screen sm:border-r border-[#2f3336] max-w-[600px] w-full pb-20 sm:pb-0 flex flex-col min-w-0">
           <MobileHeader />
           <div className="flex-1 flex flex-col">{children}</div>
         </main>

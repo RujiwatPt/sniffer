@@ -58,7 +58,7 @@ export const Sidebar: React.FC = () => {
   ];
 
   return (
-    <aside className="w-16 xl:w-64 flex flex-col justify-between h-screen sticky top-0 px-2 xl:px-4 py-3 border-r border-[#2f3336] select-none">
+    <aside className="hidden sm:flex w-16 xl:w-64 flex-col justify-between h-screen sticky top-0 px-2 xl:px-4 py-3 border-r border-[#2f3336] select-none shrink-0">
       {/* Top Section */}
       <div className="flex flex-col items-center xl:items-start space-y-2">
         {/* Brand / Logo */}

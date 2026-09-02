@@ -30,14 +30,17 @@ export const MobileBottomNav: React.FC = () => {
       {/* Floating Action Button (FAB) for Post on Mobile */}
       <button
         onClick={() => setComposeModalOpen(true)}
-        className="lg:hidden fixed right-4 bottom-20 z-40 w-14 h-14 rounded-full bg-twitter-blue hover:bg-twitter-blueHover text-white shadow-xl flex items-center justify-center active:scale-90 transition-transform"
+        className="sm:hidden fixed right-4 bottom-20 z-40 w-14 h-14 rounded-full bg-twitter-blue hover:bg-twitter-blueHover text-white shadow-2xl flex items-center justify-center active:scale-90 transition-transform"
         aria-label="New Post"
       >
         <Feather className="w-6 h-6" />
       </button>
 
       {/* Bottom Navigation Bar */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-black/90 backdrop-blur-md border-t border-[#2f3336] flex items-center justify-around py-2">
+      <nav
+        style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}
+        className="sm:hidden fixed bottom-0 left-0 right-0 z-30 bg-black/95 backdrop-blur-md border-t border-[#2f3336] flex items-center justify-around pt-2"
+      >
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeView === tab.id;

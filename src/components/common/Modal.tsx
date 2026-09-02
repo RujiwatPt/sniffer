@@ -40,7 +40,7 @@ export const Modal: React.FC<ModalProps> = ({
   }[maxWidth];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
       {/* Backdrop click */}
       <div className="fixed inset-0" onClick={onClose} aria-hidden="true" />
 
@@ -48,7 +48,7 @@ export const Modal: React.FC<ModalProps> = ({
       <div
         role="dialog"
         aria-modal="true"
-        className={`relative z-10 w-full ${maxWidthClasses} bg-[#000000] border border-[#2f3336] rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]`}
+        className={`relative z-10 w-full ${maxWidthClasses} bg-[#000000] border border-[#2f3336] rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[94vh] sm:max-h-[90vh]`}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-[#2f3336]">
