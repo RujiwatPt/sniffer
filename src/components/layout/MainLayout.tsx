@@ -10,7 +10,7 @@ interface MainLayoutProps {
 
 export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   return (
-    <div className="min-h-screen bg-black text-[#e7e9ea] flex justify-center selection:bg-twitter-blue/20">
+    <div className="min-h-screen bg-transparent text-inherit flex justify-center selection:bg-twitter-blue/20">
       <div className="w-full max-w-7xl flex">
         {/* Left Navigation Sidebar (Desktop & Tablet) */}
         <Sidebar />

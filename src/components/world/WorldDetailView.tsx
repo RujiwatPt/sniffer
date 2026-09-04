@@ -1,8 +1,9 @@
 import React from 'react';
-import { UserPlus, Radio, Shield, Hash, Users } from 'lucide-react';
+import { UserPlus, ShieldAlert, Shield, Hash, Users, BookOpen } from 'lucide-react';
 import { useWorldStore } from '../../store/useWorldStore';
 import { useCharacterStore } from '../../store/useCharacterStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
+import { useWorldMemoryStore } from '../../store/useWorldMemoryStore';
 
 export const WorldDetailView: React.FC = () => {
   const { getActiveWorld } = useWorldStore();
@@ -12,6 +13,8 @@ export const WorldDetailView: React.FC = () => {
   const characters = getCharactersByWorld(activeWorld.id);
 
   const { setWorldSelectorOpen, setEventTriggerOpen } = useSettingsStore();
+  const { getMemories } = useWorldMemoryStore();
+  const memories = getMemories(activeWorld.id, 10);
 
   return (
     <div className="flex-1 flex flex-col p-4 space-y-6">
@@ -53,10 +56,10 @@ export const WorldDetailView: React.FC = () => {
         <div className="flex flex-wrap gap-2 pt-2">
           <button
             onClick={() => setEventTriggerOpen(true)}
-            className="px-4 py-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 font-bold text-xs flex items-center space-x-2 hover:bg-amber-500/20 transition-colors"
+            className="px-4 py-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 font-bold text-xs flex items-center space-x-2 hover:bg-amber-500/20 transition-colors shadow-sm"
           >
-            <Radio className="w-4 h-4" />
-            <span>Broadcast Breaking News</span>
+            <ShieldAlert className="w-4 h-4" />
+            <span>Trigger World Encounter (1-2 NPCs)</span>
           </button>
 
           <button
@@ -121,6 +124,49 @@ export const WorldDetailView: React.FC = () => {
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Living World Memory & Timeline Archive */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-[#71767b]">
+            <BookOpen className="w-4 h-4 text-purple-400" />
+            <span>Living World Memory & Timeline Archive</span>
+          </div>
+          <span className="text-[11px] text-[#71767b] font-mono">
+            {memories.length} records remembered
+          </span>
+        </div>
+
+        {memories.length === 0 ? (
+          <div className="p-6 rounded-2xl bg-[#16181c] border border-[#2f3336] text-center text-xs text-[#71767b]">
+            No recorded timeline events yet. Post, DM characters, or resolve an encounter to etch memories into this realm!
+          </div>
+        ) : (
+          <div className="divide-y divide-[#2f3336] rounded-2xl bg-[#16181c] border border-[#2f3336] overflow-hidden">
+            {memories.map((m) => (
+              <div key={m.id} className="p-3.5 space-y-1 hover:bg-[#1f2227] transition-colors">
+                <div className="flex items-center justify-between text-[11px]">
+                  <div className="flex items-center space-x-2">
+                    <span className="font-mono text-[9px] uppercase px-1.5 py-0.5 rounded bg-black text-twitter-blue border border-twitter-blue/30 font-bold">
+                      {m.category}
+                    </span>
+                    <span className="font-bold text-[#e7e9ea]">@{m.actorHandle}</span>
+                  </div>
+                  <time className="text-[10px] text-[#71767b]">
+                    {new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </time>
+                </div>
+                <p className="text-xs text-[#e7e9ea]/90 leading-relaxed">{m.summary}</p>
+                {m.socialImpact && (
+                  <p className="text-[10px] text-amber-300/80 font-mono">
+                    ⚡️ {m.socialImpact}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* World System Instructions / Atmosphere Lore */}

@@ -2,6 +2,9 @@ import { World, WorldEvent } from '../types/world';
 import { Character, CharacterArchetype } from '../types/character';
 import { Post } from '../types/post';
 import { GeneratedReply, GeneratedWave } from '../types/ai';
+import { TimeOfDay, DailyGazette } from '../types/simulation';
+import { CharacterRelationship } from '../types/relationship';
+import { WorldEncounter } from '../types/encounter';
 
 // Archetype response templates tailored with contextual slots
 const ARCHETYPE_PATTERNS: Record<CharacterArchetype, {
@@ -257,7 +260,8 @@ export class SimulationEngine {
     world: World,
     characters: Character[],
     post: Post,
-    userCharacterId: string
+    userCharacterId: string,
+    _timeOfDay?: TimeOfDay
   ): GeneratedWave {
     // Filter out the author of the post to avoid talking to oneself
     const candidateCharacters = characters.filter((c) => c.id !== post.authorId);
@@ -403,9 +407,33 @@ export class SimulationEngine {
   /**
    * Generates an autonomous organic post from a character reflecting the world state
    */
-  static generateAutonomousPost(world: World, character: Character): string {
+  /**
+   * Generates an autonomous organic post from a character reflecting the world state and time of day
+   */
+  static generateAutonomousPost(world: World, character: Character, timeOfDay: TimeOfDay = 'afternoon'): string {
     const patterns = ARCHETYPE_PATTERNS[character.archetype] || ARCHETYPE_PATTERNS.shitposter;
-    const baseTake = patterns.autonomousTakes[Math.floor(Math.random() * patterns.autonomousTakes.length)];
+    let baseTake = patterns.autonomousTakes[Math.floor(Math.random() * patterns.autonomousTakes.length)];
+
+    // Contextual time-of-day flavors
+    if (Math.random() > 0.4) {
+      if (timeOfDay === 'morning') {
+        const morningFlavors = [
+          'morning timeline. coffee is not strong enough for this world.',
+          'waking up and immediately checking the district chatter. mistakes were made.',
+          'first thought of the day: absolutely not.',
+          'the morning sun hits different when the simulation is glitching.',
+        ];
+        baseTake = `${morningFlavors[Math.floor(Math.random() * morningFlavors.length)]} ${baseTake}`;
+      } else if (timeOfDay === 'night') {
+        const nightFlavors = [
+          '3 AM thoughts hitting like a freight train.',
+          'who else is awake scrolling the timeline in the dark?',
+          'late night district silence is either peaceful or an omen.',
+          'cannot sleep. too many unanswered questions about this sector.',
+        ];
+        baseTake = `${nightFlavors[Math.floor(Math.random() * nightFlavors.length)]} ${baseTake}`;
+      }
+    }
 
     let postText = baseTake;
 
@@ -422,6 +450,148 @@ export class SimulationEngine {
     }
 
     return postText;
+  }
+
+  /**
+   * Generates a procedural Direct Message response reflecting character speech style and relationship status
+   */
+  static generateProceduralDMReply(
+    character: Character,
+    userCharacter: Character,
+    relationship: CharacterRelationship | undefined,
+    userMessage: string,
+    timeOfDay: TimeOfDay = 'afternoon'
+  ): string {
+    const tier = relationship?.tier || 'neutral';
+    const isQuestion = userMessage.includes('?');
+
+    let pool: string[] = [];
+
+    switch (tier) {
+      case 'nemesis':
+        pool = [
+          `Why are you messaging me? Lose this frequency, @${userCharacter.handle}.`,
+          `Don't ever contact me directly. We have nothing to discuss.`,
+          `You've got a lot of nerve slipping into my DMs after everything. Back off.`,
+          `Save your breath. Watching you fail is the only thing I'm interested in.`,
+        ];
+        break;
+      case 'hostile':
+        pool = [
+          `What do you want? Make it quick, I don't have time for you.`,
+          `Did you really think I'd be glad to see your name pop up?`,
+          `Whatever you're pitching, I'm not buying it.`,
+          `Unless this is an apology, keep moving.`,
+        ];
+        break;
+      case 'skeptical':
+        pool = [
+          `What's your angle here? You don't usually reach out out of the blue.`,
+          `I'm listening, but don't expect me to take your word at face value.`,
+          `Interesting timing for you to message me. What's the catch?`,
+          `I'm keeping my guard up with you, just so you know.`,
+        ];
+        break;
+      case 'friendly':
+        pool = [
+          `Hey @${userCharacter.handle}! Good to see you in my inbox. What's happening?`,
+          `Hey there! Was just checking the timeline. How's your day going?`,
+          `Always happy to hear from you! What's on your mind?`,
+          `Hey! Got a second between tasks. Tell me what's going on.`,
+        ];
+        break;
+      case 'close_friend':
+        pool = [
+          `Hey! I was literally just thinking about our last conversation. How are you holding up?`,
+          `Always have time for you. Tell me everything!`,
+          `You know you can tell me whatever's on your mind. What's the latest?`,
+          `*chuckles* Speak of the devil! Was hoping you'd message today.`,
+        ];
+        break;
+      case 'admirer':
+        pool = [
+          `*eyes light up* Hey!! I was really hoping you'd message me today! 💖`,
+          `Your message just made my day 10x better! What can I help you with?`,
+          `Hey! Loved your recent thoughts on the timeline. What's up?`,
+          `Always here whenever you need someone in your corner!`,
+        ];
+        break;
+      case 'soulmate':
+        pool = [
+          `*smiles warmly* Hey you. I'm right here. Tell me what's on your mind. 💫`,
+          `You never need an excuse to message me. My frequency is always open for you.`,
+          `*relaxes* Hearing from you brings so much peace to this chaotic world. What's going on?`,
+          `Whatever it is, we'll navigate it together. I'm with you all the way.`,
+        ];
+        break;
+      case 'neutral':
+      default:
+        pool = [
+          `Hey @${userCharacter.handle}. What's up?`,
+          `Checking my DMs between errands. What did you need?`,
+          `Saw your message. Everything good over in your sector?`,
+          `Hey. Timeline is moving fast today, what's on your radar?`,
+        ];
+        break;
+    }
+
+    if (isQuestion && Math.random() > 0.4) {
+      if (tier === 'nemesis' || tier === 'hostile') {
+        pool.push(`Figure that out on your own.`);
+      } else if (tier === 'friendly' || tier === 'close_friend' || tier === 'admirer' || tier === 'soulmate') {
+        pool.push(`That's a solid question. Honestly, I think we have to look closer at what's brewing in the district.`);
+      }
+    }
+
+    // Time-of-day mention if late night or early morning
+    let reply = pool[Math.floor(Math.random() * pool.length)];
+    if (timeOfDay === 'night' && Math.random() > 0.5) {
+      reply = `${reply} (Also, surprised you're still awake at this hour.)`;
+    }
+
+    if (character.speechStyle.toLowerCase().includes('all lowercase')) {
+      reply = reply.toLowerCase();
+    } else if (character.speechStyle.toLowerCase().includes('caps lock')) {
+      reply = reply.toUpperCase();
+    }
+
+    return reply;
+  }
+
+  /**
+   * Generates a Daily Gazette morning recap when advancing to a new day
+   */
+  static generateDailyGazette(world: World, dayNumber: number): DailyGazette {
+    const topic = world.trendingTopics.length > 0
+      ? world.trendingTopics[Math.floor(Math.random() * world.trendingTopics.length)].tag
+      : 'SectorUpdate';
+
+    let headline = `Day ${dayNumber} in ${world.name}: Shifts Across the Network`;
+    let summary = `As dawn breaks across ${world.name}, civic leaders report fluctuating energy grids, heated digital discourse, and unexpected alliances forming across factions.`;
+    let breakingEvent = `Sub-grid bandwidth rerouted following unexpected surge in #${topic} discussions.`;
+
+    if (world.atmosphere === 'cyberpunk') {
+      headline = `Neon Chronicle — Day ${dayNumber}: Megacorp Stock Tremors & Street Protests`;
+      summary = `The atmospheric smog hangs heavy over ${world.name}. Netrunners clashed with security subroutines overnight while black-market cyberware transactions spiked 42%.`;
+      breakingEvent = `Rogue AI handshake detected in the lower districts. Faction leaders urge caution.`;
+    } else if (world.atmosphere === 'fantasy') {
+      headline = `Citadel Herald — Day ${dayNumber}: Arcane Spire Emits Azure Luminescence`;
+      summary = `The ancient constellations shifted at dawn. Alchemical ingredient shipments from the outer forests arrived early, sparking fierce bidding wars in the grand academy market.`;
+      breakingEvent = `Archmage Council convenes an emergency tribunal regarding unauthorized teleportation runes.`;
+    } else if (world.atmosphere === 'tech_dystopia') {
+      headline = `Silicon Valley Dispatch — Day ${dayNumber}: Stealth Agent Startup Reaches \$10B Valuation`;
+      summary = `Founders across Sand Hill Road are forgoing sleep entirely as autonomous code generation replaces junior engineering suites. The coffee supply is at an all-time low.`;
+      breakingEvent = `Seed round oversubscribed by 800% after an AI agent pitch deck wrote itself in Rust.`;
+    }
+
+    return {
+      dayNumber,
+      headline,
+      summary,
+      breakingEvent,
+      trendingTopic: topic,
+      notableGossip: `Residents whisper about shifting loyalties between key timeline voices.`,
+    };
   }
 
   /**
@@ -527,6 +697,99 @@ export class SimulationEngine {
       verifiedType: Math.random() > 0.8 ? 'gold' : 'blue',
       isUser: false,
       createdAt: Date.now(),
+    };
+  }
+
+  /**
+   * Generates a randomized dilemma encounter involving the player and 1 or 2 specific NPCs
+   */
+  static generateEncounter(world: World, characters: Character[]): WorldEncounter {
+    const npcs = characters.filter((c) => !c.isUser);
+    const shuffled = [...npcs].sort(() => 0.5 - Math.random());
+    const charA = shuffled[0] || this.generateProceduralCharacter(world);
+    const hasSecondNpc = shuffled.length > 1 && Math.random() > 0.35;
+    const charB = hasSecondNpc ? shuffled[1] : undefined;
+
+    const encounterId = `encounter_${Date.now()}`;
+
+    if (charB) {
+      // 2-NPC Encounter
+      return {
+        id: encounterId,
+        worldId: world.id,
+        title: `Clash of Intent: @${charA.handle} vs @${charB.handle}`,
+        setting: `A crowded digital nexus in ${world.name}`,
+        situation: `@${charA.handle} (${charA.name}) and @${charB.handle} (${charB.name}) are locked in a furious standoff. @${charA.handle} claims to possess classified sector records that @${charB.handle} attempted to sabotage. Both turn to you to arbitrate the dispute before it turns into open war.`,
+        involvedNpcIds: [charA.id, charB.id],
+        options: [
+          {
+            id: 'opt_back_a',
+            label: `Side with @${charA.handle}`,
+            actionText: `You back @${charA.handle}'s evidence and declare @${charB.handle}'s denial fraudulent.`,
+            statChanges: { aura: 4, ruthless: 3 },
+            affinityChanges: { [charA.id]: 18, [charB.id]: -18 },
+            outcomeText: `@${charA.handle} secures their records and toasts to your loyalty, while @${charB.handle} storms off, swearing vengeance.`,
+            timelinePostText: `Public verdict delivered: @${charA.handle} had the real receipts. @${charB.handle} take the L.`,
+          },
+          {
+            id: 'opt_back_b',
+            label: `Side with @${charB.handle}`,
+            actionText: `You dismantle @${charA.handle}'s claims as fabricated propaganda, validating @${charB.handle}.`,
+            statChanges: { charm: 3, dark: 4 },
+            affinityChanges: { [charA.id]: -18, [charB.id]: 18 },
+            outcomeText: `@${charB.handle} breathes a sigh of relief and shares an encrypted backdoor key with you. @${charA.handle} brands you a traitor.`,
+            timelinePostText: `@${charB.handle} is innocent. Check your data integrity before starting feuds in ${world.name}.`,
+          },
+          {
+            id: 'opt_roast_both',
+            label: `Roast & Expose Both`,
+            actionText: `You mock both of them for fighting like amateurs, leak parts of the dispute to the timeline, and walk away.`,
+            statChanges: { humor: 6, ruthless: 5, aura: 5 },
+            affinityChanges: { [charA.id]: -5, [charB.id]: -5 },
+            outcomeText: `The timeline erupts in laughter at your roast. Both characters are humiliated but respect your dominance.`,
+            timelinePostText: `Watching @${charA.handle} and @${charB.handle} squabble over basic data packets is the funniest comedy in ${world.name} 💀`,
+          },
+        ],
+      };
+    }
+
+    // 1-NPC Encounter
+    return {
+      id: encounterId,
+      worldId: world.id,
+      title: `Secret Proposition from @${charA.handle}`,
+      setting: `A low-lit backchannel in ${world.name}`,
+      situation: `@${charA.handle} (${charA.name}) intercepts you in private. They have intercepted a high-value vulnerability in the district system and want your partnership to exploit it, but warns that doing so carries immense timeline heat.`,
+      involvedNpcIds: [charA.id],
+      options: [
+        {
+          id: 'opt_partner_deep',
+          label: `Accept the Alliance (Go In Heavy)`,
+          actionText: `You shake hands on the deal, offering your tactical resources to crack the target together.`,
+          statChanges: { ruthless: 6, dark: 6, aura: 3 },
+          affinityChanges: { [charA.id]: 22 },
+          outcomeText: `@${charA.handle} is thrilled by your boldness. You execute the exploit flawlessly, splitting the credit.`,
+          timelinePostText: `Big moves in motion across ${world.name}. You'll see the results when the smoke clears.`,
+        },
+        {
+          id: 'opt_diplomatic_decline',
+          label: `Decline with Tact`,
+          actionText: `You gracefully decline, assuring @${charA.handle} that their secret is safe with you.`,
+          statChanges: { charm: 5, aura: 3 },
+          affinityChanges: { [charA.id]: 8 },
+          outcomeText: `@${charA.handle} respects your boundaries and appreciates your discretion.`,
+          timelinePostText: `Sometimes the smartest move in ${world.name} is knowing which games to decline.`,
+        },
+        {
+          id: 'opt_public_meme',
+          label: `Turn it into a Timeline Joke`,
+          actionText: `You screenshot their dramatic proposition and turn it into a viral cryptic meme.`,
+          statChanges: { humor: 7, aura: 4, dark: -2 },
+          affinityChanges: { [charA.id]: charA.archetype === 'shitposter' ? 12 : -12 },
+          outcomeText: `The timeline goes wild deciphering the meme. @${charA.handle} is stunned by your nerve.`,
+          timelinePostText: `Bro thought I was going to risk my reputation on a sketchy backchannel pitch 😭💀`,
+        },
+      ],
     };
   }
 }

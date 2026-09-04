@@ -5,7 +5,12 @@ import { useCharacterStore } from '../../store/useCharacterStore';
 import { usePostStore } from '../../store/usePostStore';
 import { useNotificationStore } from '../../store/useNotificationStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
+import { useSocialStatusStore } from '../../store/useSocialStatusStore';
+import { useWorldMemoryStore } from '../../store/useWorldMemoryStore';
+import { useRelationshipStore } from '../../store/useRelationshipStore';
+import { useSimulationStore } from '../../store/useSimulationStore';
 import { AIService } from '../../services/aiService';
+import { SocialEvaluator } from '../../services/socialEvaluator';
 import { Avatar } from '../common/Avatar';
 import { Post } from '../../types/post';
 
@@ -80,7 +85,45 @@ export const TweetComposer: React.FC<TweetComposerProps> = ({
       tags: [],
     };
 
-    // 1. Immediately render user's tweet
+    const postText = content.trim();
+
+    // 1. Social status & tone evaluation
+    const evaluation = SocialEvaluator.evaluateText(postText);
+    if (evaluation.deltas.length > 0) {
+      useSocialStatusStore.getState().applyDeltas(activeWorld.id, evaluation.deltas);
+    }
+
+    // 2. Persona-based affinity shifts for watching NPCs
+    const affinityShifts = SocialEvaluator.evaluatePersonaAffinityShifts(
+      characters,
+      postText,
+      evaluation.dominantTone,
+      evaluation.deltas
+    );
+
+    Object.entries(affinityShifts).forEach(([charId, shift]) => {
+      useRelationshipStore.getState().modifyAffinity(
+        charId,
+        activeWorld.id,
+        shift.delta,
+        shift.reason,
+        'post'
+      );
+    });
+
+    // 3. Save into World Memory
+    useWorldMemoryStore.getState().addMemory({
+      worldId: activeWorld.id,
+      category: 'user_post',
+      summary: postText.slice(0, 160),
+      fullContent: postText,
+      actorName: activeUser.name,
+      actorHandle: activeUser.handle,
+      socialImpact: evaluation.analysis,
+      involvedNpcIds: Object.keys(affinityShifts),
+    });
+
+    // 4. Immediately render user's tweet
     addPost(newPost);
     setContent('');
     setMediaUrl('');
@@ -91,20 +134,28 @@ export const TweetComposer: React.FC<TweetComposerProps> = ({
       onPostSuccess();
     }
 
-    // 2. Trigger the flood of AI character reactions!
+    // 5. Trigger the flood of AI character reactions!
     try {
+      const { timeOfDay } = useSimulationStore.getState();
       const wave = await AIService.triggerReactionWave(
         settings,
         activeWorld,
         characters,
         newPost,
-        activeUser.id
+        activeUser.id,
+        timeOfDay
       );
 
       // Increment views count with natural simulation
       setTimeout(() => {
         incrementViews(postId, wave.totalViewsAdded);
       }, 1500);
+
+      // Pre-map character IDs to their created reply IDs so sub-replies that reference other NPCs link cleanly
+      const charToReplyIdMap: Record<string, string> = {};
+      wave.replies.forEach((r, idx) => {
+        charToReplyIdMap[r.characterId] = `reply_${Date.now()}_${idx}_${Math.floor(Math.random() * 1000)}`;
+      });
 
       // Schedule each reply with staggered timing and realistic typing indicators
       wave.replies.forEach((reply) => {
@@ -118,13 +169,31 @@ export const TweetComposer: React.FC<TweetComposerProps> = ({
         setTimeout(() => {
           removeTypingCharacter(reply.characterId);
 
+          const actualReplyId =
+            charToReplyIdMap[reply.characterId] ||
+            `reply_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
+
+          // Check if this reply mentions an earlier replied character (cross-NPC banter)
+          let directReplyTo = postId;
+          const mentionedNpc = characters.find(
+            (c) =>
+              !c.isUser &&
+              reply.content.includes(`@${c.handle}`) &&
+              charToReplyIdMap[c.id]
+          );
+          if (mentionedNpc && charToReplyIdMap[mentionedNpc.id]) {
+            directReplyTo = charToReplyIdMap[mentionedNpc.id];
+          } else if (reply.replyToPostId && reply.replyToPostId !== postId) {
+            directReplyTo = reply.replyToPostId;
+          }
+
           const replyPost: Post = {
-            id: `reply_${Date.now()}_${Math.floor(Math.random() * 10000)}`,
+            id: actualReplyId,
             worldId: activeWorld.id,
             authorId: reply.characterId,
             content: reply.content,
             createdAt: Date.now(),
-            replyToId: reply.replyToPostId,
+            replyToId: directReplyTo,
             rootPostId: postId,
             likesCount: Math.floor(Math.random() * 5),
             repostsCount: 0,

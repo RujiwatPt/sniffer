@@ -17,7 +17,7 @@ export const useNotificationStore = create<NotificationState>()(
 
       addNotification: (notification: Notification) => {
         set((state) => ({
-          notifications: [notification, ...state.notifications],
+          notifications: [notification, ...state.notifications].slice(0, 50),
         }));
       },
 

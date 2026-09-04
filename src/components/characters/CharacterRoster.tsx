@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
-import { UserPlus, Sparkles, Check, ArrowRightLeft } from 'lucide-react';
+import { UserPlus, Sparkles, Check, ArrowRightLeft, Mail } from 'lucide-react';
 import { useCharacterStore } from '../../store/useCharacterStore';
 import { useWorldStore } from '../../store/useWorldStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
+import { useRelationshipStore } from '../../store/useRelationshipStore';
+import { useDMStore } from '../../store/useDMStore';
 import { Avatar } from '../common/Avatar';
 import { VerifiedBadge } from '../common/VerifiedBadge';
+import { RelationshipBadge } from '../relationships/RelationshipBadge';
 
 export const CharacterRoster: React.FC = () => {
   const { getActiveWorld } = useWorldStore();
@@ -19,8 +22,9 @@ export const CharacterRoster: React.FC = () => {
 
   const characters = getCharactersByWorld(activeWorld.id);
   const activeUser = getActiveUserCharacter(activeWorld.id);
-
-  const { setCharacterModalOpen } = useSettingsStore();
+  const { getRelationship } = useRelationshipStore();
+  const { getOrCreateThread, setActiveThreadId } = useDMStore();
+  const { setCharacterModalOpen, setActiveView } = useSettingsStore();
 
   const [isSynthesizing, setIsSynthesizing] = useState(false);
   const [filterArchetype, setFilterArchetype] = useState<string>('all');
@@ -140,21 +144,43 @@ export const CharacterRoster: React.FC = () => {
                       @{char.handle}
                     </div>
 
-                    <div className="flex items-center space-x-2 mt-1">
+                    <div className="flex flex-wrap items-center gap-1.5 mt-1">
                       <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-[#1e2024] text-[#71767b] border border-[#2f3336]">
                         {char.archetype}
                       </span>
                       {!char.isUser && (
-                        <span className="text-[10px] font-mono capitalize px-2 py-0.5 rounded bg-blue-950/40 text-blue-400 border border-blue-900/50">
-                          Stance: {char.stanceTowardsUser}
-                        </span>
+                        <>
+                          <RelationshipBadge
+                            affinity={getRelationship(char.id, activeWorld.id).affinity}
+                            tier={getRelationship(char.id, activeWorld.id).tier}
+                            size="xs"
+                          />
+                          <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-amber-950/30 text-amber-300/90 border border-amber-800/40">
+                            {char.mood || 'neutral'}
+                          </span>
+                        </>
                       )}
                     </div>
                   </div>
                 </div>
 
-                {/* Roleplay Switcher */}
-                <div>
+                {/* Actions: Message & Roleplay Switcher */}
+                <div className="flex items-center space-x-2">
+                  {!char.isUser && (
+                    <button
+                      onClick={() => {
+                        const thread = getOrCreateThread(activeWorld.id, activeUser.id, char.id);
+                        setActiveThreadId(thread.id);
+                        setActiveView('messages');
+                      }}
+                      className="flex items-center space-x-1 text-xs font-semibold px-3 py-1.5 rounded-full bg-twitter-blue/10 hover:bg-twitter-blue/20 text-twitter-blue border border-twitter-blue/30 transition-colors"
+                      title="Send Direct Message"
+                    >
+                      <Mail className="w-3.5 h-3.5" />
+                      <span>Message</span>
+                    </button>
+                  )}
+
                   {isCurrentActive ? (
                     <span className="flex items-center space-x-1 text-xs font-bold text-twitter-blue bg-twitter-blue/10 px-3 py-1.5 rounded-full">
                       <Check className="w-3.5 h-3.5 stroke-[3]" />

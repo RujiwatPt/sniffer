@@ -30,9 +30,17 @@ Every world is a universe with its own lore, atmosphere, factions, and trending 
   - **Roleplay As Anyone**: Switch your active persona with one click to tweet and reply as any character in the universe.
 - **Dual AI Engine**:
   - **Zero-Config Procedural Mode**: High-velocity, offline, rich heuristic engine that works out of the box with zero API keys or external costs.
-  - **Live LLM Integration**: Built-in support for **Google Gemini API** (Gemini 2.5 Flash, 2.0 Flash) and **OpenAI-compatible endpoints** (OpenRouter, Groq, Ollama, LM Studio).
-- **Autonomous Living Timeline**:
-  - Background simulation ticker generating spontaneous character banter, hot takes, and debates even when you're not posting.
+  - **OpenRouter Cloud LLM Integration**: Connect any state-of-the-art model (Euryale 70B, Claude 3.5 Sonnet, Llama 3.3, DeepSeek) for deep, uncensored, immersive roleplay.
+- **Dynamic Relationship & Affinity System**:
+  - Track real-time affinity (-100 to +100) and tiers (`nemesis` to `soulmate`) across characters.
+  - Characters react to user posts and DMs based on their archetype (shitposters love memes, agitators respect ruthless boldness, corporate shills demand compliance).
+- **Living World Memory & 1-2 NPC Dilemmas**:
+  - Persistent timeline memory recording everything you post, DM, and decide.
+  - Interactive Dilemma Encounters with 1 or at most 2 NPCs with custom write-in actions evaluated for social tone and consequences.
+- **Player Social Reputation**:
+  - Live tracking of 5 core attributes: Aura, Charm, Humor, Ruthless, and Dark / Edge.
+- **Autonomous Living Timeline & Day Progression**:
+  - Four-phase day cycle (`morning`, `afternoon`, `evening`, `night`) with sleeping transitions and daily gazettes.
 
 ---
 
@@ -77,4 +85,4 @@ npm run build
 - **Styling**: Tailwind CSS + Lucide React
 - **State Management**: Zustand (with LocalStorage persistence)
 - **Testing**: Vitest + React Testing Library + JSDOM
-- **AI**: Pluggable Google Gemini REST API / OpenAI-compatible / Procedural Heuristic Generator
+- **AI**: OpenRouter Cloud LLM API / Procedural Simulation Engine

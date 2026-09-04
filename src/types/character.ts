@@ -1,3 +1,5 @@
+import { CharacterMood } from './simulation';
+
 export type CharacterArchetype =
   | 'shitposter'
   | 'intellectual'
@@ -39,5 +41,7 @@ export interface Character {
   verified: boolean;
   verifiedType?: VerifiedBadgeType;
   isUser: boolean; // true for the player's active account
+  mood?: CharacterMood;
+  currentActivity?: string;
   createdAt: number;
 }

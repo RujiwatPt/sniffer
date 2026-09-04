@@ -1,8 +1,10 @@
 import React from 'react';
-import { Home, Globe, Users, Bell, Feather } from 'lucide-react';
+import { Home, Globe, Users, Bell, Mail, Feather } from 'lucide-react';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { useNotificationStore } from '../../store/useNotificationStore';
 import { useWorldStore } from '../../store/useWorldStore';
+import { useCharacterStore } from '../../store/useCharacterStore';
+import { useDMStore } from '../../store/useDMStore';
 
 export const MobileBottomNav: React.FC = () => {
   const { activeView, setActiveView, setComposeModalOpen } = useSettingsStore();
@@ -11,8 +13,13 @@ export const MobileBottomNav: React.FC = () => {
   const { getUnreadCount } = useNotificationStore();
   const unreadCount = getUnreadCount(activeWorld.id);
 
+  const { getActiveUserCharacter } = useCharacterStore();
+  const activeUser = getActiveUserCharacter(activeWorld.id);
+  const { getUnreadCount: getUnreadDMs } = useDMStore();
+  const unreadDMs = getUnreadDMs(activeWorld.id, activeUser.id);
+
   interface TabItem {
-    id: 'feed' | 'world' | 'characters' | 'notifications';
+    id: 'feed' | 'world' | 'characters' | 'notifications' | 'messages';
     icon: React.ComponentType<{ className?: string }>;
     label: string;
     badge?: number;
@@ -23,6 +30,7 @@ export const MobileBottomNav: React.FC = () => {
     { id: 'world', icon: Globe, label: 'World' },
     { id: 'characters', icon: Users, label: 'Characters' },
     { id: 'notifications', icon: Bell, label: 'Alerts', badge: unreadCount > 0 ? unreadCount : undefined },
+    { id: 'messages', icon: Mail, label: 'Messages', badge: unreadDMs > 0 ? unreadDMs : undefined },
   ];
 
   return (

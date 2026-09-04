@@ -8,6 +8,7 @@ import { SimulationEngine } from '../services/simulationEngine';
 interface CharacterState {
   characters: Character[];
   activeUserCharacterId: string;
+  followingIds: Record<string, string[]>; // worldId -> followed characterIds
   getCharactersByWorld: (worldId: string) => Character[];
   getActiveUserCharacter: (worldId: string) => Character;
   getCharacterById: (id: string) => Character | undefined;
@@ -16,17 +17,27 @@ interface CharacterState {
   deleteCharacter: (id: string) => void;
   setActiveUserCharacterId: (id: string) => void;
   generateAndAddNPC: (world: World) => Character;
+  isFollowing: (characterId: string, worldId: string) => boolean;
+  toggleFollow: (characterId: string, worldId: string) => void;
   resetToDefaults: () => void;
 }
 
 const defaultCharacters = PRESET_WORLDS.flatMap((p) => p.characters);
 const initialUser = defaultCharacters.find((c) => c.isUser)?.id || 'user_neo';
 
+// Seed default following with the first 2 NPCs in each preset world
+const initialFollowing: Record<string, string[]> = {};
+PRESET_WORLDS.forEach((pw) => {
+  const npcs = pw.characters.filter((c) => !c.isUser);
+  initialFollowing[pw.world.id] = npcs.slice(0, 2).map((c) => c.id);
+});
+
 export const useCharacterStore = create<CharacterState>()(
   persist(
     (set, get) => ({
       characters: defaultCharacters,
       activeUserCharacterId: initialUser,
+      followingIds: initialFollowing,
 
       getCharactersByWorld: (worldId: string) => {
         return get().characters.filter((c) => c.worldId === worldId);
@@ -100,10 +111,46 @@ export const useCharacterStore = create<CharacterState>()(
         return newChar;
       },
 
+      isFollowing: (characterId: string, worldId: string) => {
+        const { followingIds } = get();
+        const list = followingIds[worldId] || [];
+        return list.includes(characterId);
+      },
+
+      toggleFollow: (characterId: string, worldId: string) => {
+        set((state) => {
+          const list = state.followingIds[worldId] || [];
+          const currentlyFollowing = list.includes(characterId);
+          const nextList = currentlyFollowing
+            ? list.filter((id) => id !== characterId)
+            : [...list, characterId];
+
+          // Update follower count on the target character
+          const updatedCharacters = state.characters.map((c) => {
+            if (c.id === characterId) {
+              return {
+                ...c,
+                followerCount: Math.max(0, c.followerCount + (currentlyFollowing ? -1 : 1)),
+              };
+            }
+            return c;
+          });
+
+          return {
+            followingIds: {
+              ...state.followingIds,
+              [worldId]: nextList,
+            },
+            characters: updatedCharacters,
+          };
+        });
+      },
+
       resetToDefaults: () => {
         set({
           characters: defaultCharacters,
           activeUserCharacterId: initialUser,
+          followingIds: initialFollowing,
         });
       },
     }),

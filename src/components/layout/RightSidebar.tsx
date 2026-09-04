@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Search, Sparkles, UserPlus, Globe, TrendingUp } from 'lucide-react';
+import { Search, ShieldAlert, UserPlus, Globe, TrendingUp } from 'lucide-react';
 import { useWorldStore } from '../../store/useWorldStore';
 import { useCharacterStore } from '../../store/useCharacterStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { Avatar } from '../common/Avatar';
 import { VerifiedBadge } from '../common/VerifiedBadge';
+import { DayProgressionControl } from '../simulation/DayProgressionControl';
+import { SocialStatusRadar } from '../profile/SocialStatusRadar';
 
 export const RightSidebar: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -43,6 +45,9 @@ export const RightSidebar: React.FC = () => {
         </div>
       </div>
 
+      {/* Day Progression & Time Phase Engine */}
+      <DayProgressionControl />
+
       {/* World Overview Card */}
       <div className="bg-[#16181c] rounded-2xl p-4 border border-[#2f3336] space-y-3">
         <div className="flex items-center justify-between">
@@ -79,8 +84,8 @@ export const RightSidebar: React.FC = () => {
             onClick={() => setEventTriggerOpen(true)}
             className="w-full py-2 px-3 bg-amber-500/10 border border-amber-500/30 hover:bg-amber-500/20 text-amber-400 font-semibold text-xs rounded-xl flex items-center justify-center space-x-2 transition-colors"
           >
-            <Sparkles className="w-4 h-4" />
-            <span>Trigger Breaking News</span>
+            <ShieldAlert className="w-4 h-4" />
+            <span>Trigger Encounter (1-2 NPCs)</span>
           </button>
 
           <button
@@ -92,6 +97,11 @@ export const RightSidebar: React.FC = () => {
             <span>{isGenerating ? 'Synthesizing...' : 'Add AI Character'}</span>
           </button>
         </div>
+      </div>
+
+      {/* Player Social Reputation Radar */}
+      <div className="space-y-1">
+        <SocialStatusRadar compact />
       </div>
 
       {/* World Trends */}

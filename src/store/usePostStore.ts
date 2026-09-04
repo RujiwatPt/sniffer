@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Post, ThreadViewData } from '../types/post';
 import { PRESET_WORLDS } from '../services/presetWorlds';
+import { useRelationshipStore } from './useRelationshipStore';
 
 export type FeedFilterTab = 'for_you' | 'following' | 'pulse';
 
@@ -50,6 +51,17 @@ export const usePostStore = create<PostState>()(
       addPost: (newPost: Post) => {
         set((state) => {
           // If this post is a reply, update the reply counter on the parent post
+          const parentPost = newPost.replyToId ? state.posts.find((p) => p.id === newPost.replyToId) : undefined;
+          if (parentPost && parentPost.authorId !== newPost.authorId) {
+            try {
+              useRelationshipStore
+                .getState()
+                .modifyAffinity(parentPost.authorId, newPost.worldId, 3, 'Replied to their post', 'tweet_reply');
+            } catch {
+              // ignore
+            }
+          }
+
           const updatedPosts = state.posts.map((p) => {
             if (newPost.replyToId && p.id === newPost.replyToId) {
               return { ...p, repliesCount: p.repliesCount + 1 };
@@ -58,7 +70,7 @@ export const usePostStore = create<PostState>()(
           });
 
           return {
-            posts: [newPost, ...updatedPosts],
+            posts: [newPost, ...updatedPosts].slice(0, 150),
           };
         });
       },
@@ -70,31 +82,61 @@ export const usePostStore = create<PostState>()(
       },
 
       toggleLike: (postId: string, characterId: string) => {
-        set((state) => ({
-          posts: state.posts.map((p) => {
-            if (p.id !== postId) return p;
-            const alreadyLiked = p.likedBy.includes(characterId);
-            const likedBy = alreadyLiked
-              ? p.likedBy.filter((id) => id !== characterId)
-              : [...p.likedBy, characterId];
-            const likesCount = Math.max(0, p.likesCount + (alreadyLiked ? -1 : 1));
-            return { ...p, likedBy, likesCount };
-          }),
-        }));
+        set((state) => {
+          const targetPost = state.posts.find((p) => p.id === postId);
+          const alreadyLiked = targetPost?.likedBy.includes(characterId);
+
+          if (targetPost && !alreadyLiked && targetPost.authorId !== characterId) {
+            try {
+              useRelationshipStore
+                .getState()
+                .modifyAffinity(targetPost.authorId, targetPost.worldId, 1, 'Liked their post', 'tweet_like');
+            } catch {
+              // ignore
+            }
+          }
+
+          return {
+            posts: state.posts.map((p) => {
+              if (p.id !== postId) return p;
+              const isLiked = p.likedBy.includes(characterId);
+              const likedBy = isLiked
+                ? p.likedBy.filter((id) => id !== characterId)
+                : [...p.likedBy, characterId];
+              const likesCount = Math.max(0, p.likesCount + (isLiked ? -1 : 1));
+              return { ...p, likedBy, likesCount };
+            }),
+          };
+        });
       },
 
       toggleRepost: (postId: string, characterId: string) => {
-        set((state) => ({
-          posts: state.posts.map((p) => {
-            if (p.id !== postId) return p;
-            const alreadyReposted = p.repostedBy.includes(characterId);
-            const repostedBy = alreadyReposted
-              ? p.repostedBy.filter((id) => id !== characterId)
-              : [...p.repostedBy, characterId];
-            const repostsCount = Math.max(0, p.repostsCount + (alreadyReposted ? -1 : 1));
-            return { ...p, repostedBy, repostsCount };
-          }),
-        }));
+        set((state) => {
+          const targetPost = state.posts.find((p) => p.id === postId);
+          const alreadyReposted = targetPost?.repostedBy.includes(characterId);
+
+          if (targetPost && !alreadyReposted && targetPost.authorId !== characterId) {
+            try {
+              useRelationshipStore
+                .getState()
+                .modifyAffinity(targetPost.authorId, targetPost.worldId, 2, 'Reposted their post', 'tweet_repost');
+            } catch {
+              // ignore
+            }
+          }
+
+          return {
+            posts: state.posts.map((p) => {
+              if (p.id !== postId) return p;
+              const isReposted = p.repostedBy.includes(characterId);
+              const repostedBy = isReposted
+                ? p.repostedBy.filter((id) => id !== characterId)
+                : [...p.repostedBy, characterId];
+              const repostsCount = Math.max(0, p.repostsCount + (isReposted ? -1 : 1));
+              return { ...p, repostedBy, repostsCount };
+            }),
+          };
+        });
       },
 
       toggleBookmark: (postId: string, characterId: string) => {

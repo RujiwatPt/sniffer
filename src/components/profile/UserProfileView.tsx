@@ -6,6 +6,7 @@ import { usePostStore } from '../../store/usePostStore';
 import { Avatar } from '../common/Avatar';
 import { VerifiedBadge } from '../common/VerifiedBadge';
 import { TweetCard } from '../feed/TweetCard';
+import { SocialStatusRadar } from './SocialStatusRadar';
 
 export const UserProfileView: React.FC = () => {
   const { getActiveWorld } = useWorldStore();
@@ -107,6 +108,11 @@ export const UserProfileView: React.FC = () => {
             </span>{' '}
             <span className="text-[#71767b]">Followers</span>
           </div>
+        </div>
+
+        {/* Social Persona & Reputation Radar */}
+        <div className="mt-4">
+          <SocialStatusRadar />
         </div>
       </div>
 

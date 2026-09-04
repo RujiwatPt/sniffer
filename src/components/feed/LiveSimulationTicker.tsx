@@ -4,7 +4,9 @@ import { usePostStore } from '../../store/usePostStore';
 import { useCharacterStore } from '../../store/useCharacterStore';
 import { useWorldStore } from '../../store/useWorldStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
+import { useSimulationStore } from '../../store/useSimulationStore';
 import { SimulationEngine } from '../../services/simulationEngine';
+import { DayProgressionControl } from '../simulation/DayProgressionControl';
 import { Post } from '../../types/post';
 
 export const LiveSimulationTicker: React.FC = () => {
@@ -12,6 +14,7 @@ export const LiveSimulationTicker: React.FC = () => {
   const { getCharacterById, getCharactersByWorld } = useCharacterStore();
   const { getActiveWorld } = useWorldStore();
   const { settings } = useSettingsStore();
+  const { timeOfDay } = useSimulationStore();
 
   const activeWorld = getActiveWorld();
   const characters = getCharactersByWorld(activeWorld.id);
@@ -26,7 +29,7 @@ export const LiveSimulationTicker: React.FC = () => {
     if (npcs.length === 0) return;
 
     const randomAuthor = npcs[Math.floor(Math.random() * npcs.length)];
-    const content = SimulationEngine.generateAutonomousPost(activeWorld, randomAuthor);
+    const content = SimulationEngine.generateAutonomousPost(activeWorld, randomAuthor, timeOfDay);
 
     const newPost: Post = {
       id: `auto_${Date.now()}`,
@@ -73,14 +76,20 @@ export const LiveSimulationTicker: React.FC = () => {
         )}
       </div>
 
-      <button
-        onClick={handleSimulatePulse}
-        className="shrink-0 flex items-center space-x-1 px-2.5 py-1 rounded-full bg-[#1e2024] hover:bg-[#282a30] text-[#e7e9ea] text-[11px] font-semibold border border-[#2f3336] transition-colors active:scale-95"
-        title="Trigger an autonomous character take"
-      >
-        <Zap className="w-3 h-3 text-amber-400" />
-        <span>Pulse</span>
-      </button>
+      <div className="shrink-0 flex items-center space-x-2">
+        <div className="lg:hidden">
+          <DayProgressionControl compact />
+        </div>
+
+        <button
+          onClick={handleSimulatePulse}
+          className="flex items-center space-x-1 px-2.5 py-1 rounded-full bg-[#1e2024] hover:bg-[#282a30] text-[#e7e9ea] text-[11px] font-semibold border border-[#2f3336] transition-colors active:scale-95"
+          title="Trigger an autonomous character take"
+        >
+          <Zap className="w-3 h-3 text-amber-400" />
+          <span>Pulse</span>
+        </button>
+      </div>
     </div>
   );
 };

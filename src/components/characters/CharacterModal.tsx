@@ -44,6 +44,7 @@ export const CharacterModal: React.FC = () => {
       verified,
       verifiedType: verified ? 'blue' : undefined,
       isUser: false,
+      mood: 'neutral',
       createdAt: Date.now(),
     };
 

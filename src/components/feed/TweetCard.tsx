@@ -7,13 +7,18 @@ import {
   Bookmark,
   Share,
   Trash2,
+  Mail,
 } from 'lucide-react';
 import { Post } from '../../types/post';
 import { useCharacterStore } from '../../store/useCharacterStore';
 import { usePostStore } from '../../store/usePostStore';
 import { useWorldStore } from '../../store/useWorldStore';
+import { useRelationshipStore } from '../../store/useRelationshipStore';
+import { useDMStore } from '../../store/useDMStore';
+import { useSettingsStore } from '../../store/useSettingsStore';
 import { Avatar } from '../common/Avatar';
 import { VerifiedBadge } from '../common/VerifiedBadge';
+import { RelationshipBadge } from '../relationships/RelationshipBadge';
 
 interface TweetCardProps {
   post: Post;
@@ -32,6 +37,9 @@ export const TweetCard: React.FC<TweetCardProps> = ({
   const { getActiveWorld } = useWorldStore();
   const activeWorld = getActiveWorld();
   const activeUser = getActiveUserCharacter(activeWorld.id);
+  const { getRelationship } = useRelationshipStore();
+  const { getOrCreateThread, setActiveThreadId } = useDMStore();
+  const { setActiveView } = useSettingsStore();
 
   const { toggleLike, toggleRepost, toggleBookmark, deletePost, incrementViews } =
     usePostStore();
@@ -103,15 +111,6 @@ export const TweetCard: React.FC<TweetCardProps> = ({
     });
   };
 
-  const stanceColors: Record<string, string> = {
-    admirer: 'text-emerald-400 bg-emerald-950/60 border-emerald-800',
-    bestie: 'text-emerald-400 bg-emerald-950/60 border-emerald-800',
-    rival: 'text-amber-400 bg-amber-950/60 border-amber-800',
-    hater: 'text-rose-400 bg-rose-950/60 border-rose-800',
-    simp: 'text-pink-400 bg-pink-950/60 border-pink-800',
-    skeptic: 'text-purple-400 bg-purple-950/60 border-purple-800',
-  };
-
   return (
     <article
       onClick={handleCardClick}
@@ -147,21 +146,35 @@ export const TweetCard: React.FC<TweetCardProps> = ({
                 {formatTimestamp(post.createdAt)}
               </time>
 
-              {/* Character Stance Pill if not player */}
-              {!author.isUser && author.stanceTowardsUser && (
-                <span
-                  className={`hidden sm:inline-block text-[10px] px-1.5 py-0.2 rounded border font-mono uppercase tracking-wider ml-1 ${
-                    stanceColors[author.stanceTowardsUser] || 'text-[#71767b] border-[#2f3336]'
-                  }`}
-                  title={`Character stance towards you: ${author.stanceTowardsUser}`}
-                >
-                  {author.stanceTowardsUser}
-                </span>
+              {/* Character Relationship Badge if not player */}
+              {!author.isUser && (
+                <div className="hidden sm:inline-block ml-1">
+                  <RelationshipBadge
+                    affinity={getRelationship(author.id, activeWorld.id).affinity}
+                    tier={getRelationship(author.id, activeWorld.id).tier}
+                    size="xs"
+                  />
+                </div>
               )}
             </div>
 
-            {/* Menu Options */}
-            <div className="flex items-center">
+            {/* Menu Options & Quick DM */}
+            <div className="flex items-center space-x-1">
+              {!author.isUser && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const thread = getOrCreateThread(activeWorld.id, activeUser.id, author.id);
+                    setActiveThreadId(thread.id);
+                    setActiveView('messages');
+                  }}
+                  className="p-1.5 text-[#71767b] hover:text-twitter-blue hover:bg-twitter-blue/10 rounded-full transition-colors"
+                  title={`Direct Message @${author.handle}`}
+                >
+                  <Mail className="w-3.5 h-3.5" />
+                </button>
+              )}
+
               {post.authorId === activeUser.id && (
                 <button
                   onClick={(e) => handleAction(e, () => deletePost(post.id))}

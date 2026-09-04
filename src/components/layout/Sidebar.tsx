@@ -4,17 +4,19 @@ import {
   Globe,
   Users,
   Bell,
+  Mail,
   User,
   Settings,
   Feather,
   Radio,
-  Sparkles,
+  ShieldAlert,
   ChevronDown
 } from 'lucide-react';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { useWorldStore } from '../../store/useWorldStore';
 import { useCharacterStore } from '../../store/useCharacterStore';
 import { useNotificationStore } from '../../store/useNotificationStore';
+import { useDMStore } from '../../store/useDMStore';
 import { Avatar } from '../common/Avatar';
 import { VerifiedBadge } from '../common/VerifiedBadge';
 
@@ -37,8 +39,11 @@ export const Sidebar: React.FC = () => {
   const { getUnreadCount } = useNotificationStore();
   const unreadNotifications = getUnreadCount(activeWorld.id);
 
+  const { getUnreadCount: getUnreadDMs } = useDMStore();
+  const unreadDMs = getUnreadDMs(activeWorld.id, activeUser.id);
+
   interface NavItem {
-    id: 'feed' | 'world' | 'characters' | 'notifications' | 'profile';
+    id: 'feed' | 'world' | 'characters' | 'notifications' | 'messages' | 'profile';
     label: string;
     icon: React.ComponentType<{ className?: string }>;
     badge?: number;
@@ -53,6 +58,12 @@ export const Sidebar: React.FC = () => {
       label: 'Notifications',
       icon: Bell,
       badge: unreadNotifications > 0 ? unreadNotifications : undefined,
+    },
+    {
+      id: 'messages',
+      label: 'Messages',
+      icon: Mail,
+      badge: unreadDMs > 0 ? unreadDMs : undefined,
     },
     { id: 'profile', label: 'Profile', icon: User },
   ];
@@ -125,14 +136,15 @@ export const Sidebar: React.FC = () => {
             );
           })}
 
-          {/* Quick World Event Trigger */}
+          {/* Quick World Encounter Dilemma Trigger */}
           <button
             onClick={() => setEventTriggerOpen(true)}
             className="flex items-center space-x-4 px-3 py-3 rounded-full text-[#e7e9ea] hover:bg-[#16181c] transition-all group w-fit xl:w-full"
+            title="Trigger World Dilemma Encounter (1-2 NPCs)"
           >
-            <Sparkles className="w-6 h-6 text-amber-400 group-hover:rotate-12 transition-transform" />
-            <span className="hidden xl:inline text-lg text-amber-400 font-medium">
-              World Event
+            <ShieldAlert className="w-6 h-6 text-amber-400 group-hover:scale-110 transition-transform" />
+            <span className="hidden xl:inline text-base text-amber-400 font-medium truncate">
+              Encounter
             </span>
           </button>
 

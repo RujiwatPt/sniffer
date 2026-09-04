@@ -1,8 +1,8 @@
 import React from 'react';
-import { Cpu, Palette, Zap, Sparkles, Key, Check } from 'lucide-react';
+import { Cpu, Palette, Zap, Sparkles, Check, Bot } from 'lucide-react';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { Modal } from '../common/Modal';
-import { ThemeMode } from '../../types/ai';
+import { ThemeMode, OPENROUTER_PRESET_MODELS } from '../../types/ai';
 
 export const SettingsModal: React.FC = () => {
   const {
@@ -93,129 +93,107 @@ export const SettingsModal: React.FC = () => {
             <span>AI Simulation Engine</span>
           </div>
 
-          {/* Provider Selection */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          {/* Provider Selection Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <button
+              onClick={() => updateSettings({ provider: 'openrouter' })}
+              className={`p-3.5 rounded-xl border text-left transition-all ${
+                settings.provider === 'openrouter'
+                  ? 'bg-twitter-blue/10 border-twitter-blue ring-1 ring-twitter-blue text-white'
+                  : 'bg-[#16181c] border-[#2f3336] text-[#71767b] hover:text-[#e7e9ea]'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-xs text-[#e7e9ea]">OpenRouter Cloud LLM</span>
+                <Bot className="w-4 h-4 text-purple-400" />
+              </div>
+              <p className="text-[11px] mt-1 text-[#71767b]">Llama 3.3, Euryale, Hermes, Magnum, Venice</p>
+            </button>
+
             <button
               onClick={() => updateSettings({ provider: 'simulation' })}
-              className={`p-3 rounded-xl border text-left transition-all ${
+              className={`p-3.5 rounded-xl border text-left transition-all ${
                 settings.provider === 'simulation'
                   ? 'bg-twitter-blue/10 border-twitter-blue ring-1 ring-twitter-blue text-white'
                   : 'bg-[#16181c] border-[#2f3336] text-[#71767b] hover:text-[#e7e9ea]'
               }`}
             >
               <div className="flex items-center justify-between">
-                <span className="font-bold text-xs text-[#e7e9ea]">Procedural</span>
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span className="font-bold text-xs text-[#e7e9ea]">Procedural Engine</span>
+                <Sparkles className="w-4 h-4 text-amber-400" />
               </div>
-              <p className="text-[10px] mt-1 text-[#71767b]">Offline, instant, zero key required</p>
-            </button>
-
-            <button
-              onClick={() => updateSettings({ provider: 'gemini' })}
-              className={`p-3 rounded-xl border text-left transition-all ${
-                settings.provider === 'gemini'
-                  ? 'bg-twitter-blue/10 border-twitter-blue ring-1 ring-twitter-blue text-white'
-                  : 'bg-[#16181c] border-[#2f3336] text-[#71767b] hover:text-[#e7e9ea]'
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-xs text-[#e7e9ea]">Google Gemini</span>
-                <Key className="w-3.5 h-3.5 text-twitter-blue" />
-              </div>
-              <p className="text-[10px] mt-1 text-[#71767b]">Gemini 2.5 Flash / 2.0 Flash</p>
-            </button>
-
-            <button
-              onClick={() => updateSettings({ provider: 'openai' })}
-              className={`p-3 rounded-xl border text-left transition-all ${
-                settings.provider === 'openai'
-                  ? 'bg-twitter-blue/10 border-twitter-blue ring-1 ring-twitter-blue text-white'
-                  : 'bg-[#16181c] border-[#2f3336] text-[#71767b] hover:text-[#e7e9ea]'
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-xs text-[#e7e9ea]">OpenAI / Ollama</span>
-                <Key className="w-3.5 h-3.5 text-emerald-400" />
-              </div>
-              <p className="text-[10px] mt-1 text-[#71767b]">OpenRouter, Ollama, Groq</p>
+              <p className="text-[11px] mt-1 text-[#71767b]">Zero key, instant responses, offline-ready</p>
             </button>
           </div>
 
-          {/* Gemini Settings */}
-          {settings.provider === 'gemini' && (
-            <div className="space-y-3 p-3 bg-[#16181c] border border-[#2f3336] rounded-xl animate-fadeIn">
+          {/* OpenRouter Settings */}
+          {settings.provider === 'openrouter' && (
+            <div className="space-y-3 p-3.5 bg-[#16181c] border border-[#2f3336] rounded-xl animate-fadeIn">
               <div>
                 <label className="block text-xs font-bold text-[#71767b] mb-1">
-                  Google Gemini API Key
+                  OpenRouter API Key
                 </label>
                 <input
                   type="password"
-                  value={settings.geminiApiKey}
-                  onChange={(e) => updateSettings({ geminiApiKey: e.target.value })}
-                  placeholder="AIzaSy..."
+                  value={settings.openRouterApiKey}
+                  onChange={(e) => updateSettings({ openRouterApiKey: e.target.value })}
+                  placeholder="sk-or-v1-..."
                   className="w-full px-3 py-2 bg-[#000] border border-[#2f3336] rounded-lg text-xs text-[#e7e9ea] focus:outline-none focus:border-twitter-blue"
                 />
+                <p className="text-[10px] text-[#71767b] mt-1">
+                  Get your key at{' '}
+                  <a
+                    href="https://openrouter.ai/keys"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-twitter-blue underline"
+                  >
+                    openrouter.ai/keys
+                  </a>
+                </p>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-[#71767b] mb-1">
-                  Gemini Model
+                  Roleplay & Simulation Model
                 </label>
                 <select
-                  value={settings.geminiModel}
-                  onChange={(e) => updateSettings({ geminiModel: e.target.value })}
-                  className="w-full px-3 py-2 bg-[#000] border border-[#2f3336] rounded-lg text-xs text-[#e7e9ea] focus:outline-none focus:border-twitter-blue"
+                  value={settings.openRouterModel}
+                  onChange={(e) => updateSettings({ openRouterModel: e.target.value })}
+                  className="w-full px-3 py-2 bg-[#000] border border-[#2f3336] rounded-lg text-xs text-[#e7e9ea] focus:outline-none focus:border-twitter-blue font-mono"
                 >
-                  <option value="gemini-2.5-flash">gemini-2.5-flash (Recommended)</option>
-                  <option value="gemini-2.0-flash">gemini-2.0-flash</option>
-                  <option value="gemini-1.5-pro">gemini-1.5-pro</option>
-                  <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+                  {OPENROUTER_PRESET_MODELS.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name} — [{m.tag}] ({m.speed})
+                    </option>
+                  ))}
+                  <option value="custom">Custom Model (Type below)</option>
                 </select>
-              </div>
-            </div>
-          )}
-
-          {/* OpenAI / Custom Endpoint Settings */}
-          {settings.provider === 'openai' && (
-            <div className="space-y-3 p-3 bg-[#16181c] border border-[#2f3336] rounded-xl animate-fadeIn">
-              <div>
-                <label className="block text-xs font-bold text-[#71767b] mb-1">
-                  API Key
-                </label>
-                <input
-                  type="password"
-                  value={settings.openAiApiKey}
-                  onChange={(e) => updateSettings({ openAiApiKey: e.target.value })}
-                  placeholder="sk-..."
-                  className="w-full px-3 py-2 bg-[#000] border border-[#2f3336] rounded-lg text-xs text-[#e7e9ea] focus:outline-none focus:border-twitter-blue"
-                />
+                {settings.openRouterModel && (
+                  <p className="text-[10px] text-[#71767b] mt-1">
+                    {OPENROUTER_PRESET_MODELS.find((m) => m.id === settings.openRouterModel)
+                      ?.description || 'Custom OpenRouter model identifier.'}
+                  </p>
+                )}
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-[#71767b] mb-1">
-                  Base URL (OpenRouter, Ollama localhost, Groq)
-                </label>
-                <input
-                  type="text"
-                  value={settings.openAiBaseUrl}
-                  onChange={(e) => updateSettings({ openAiBaseUrl: e.target.value })}
-                  placeholder="https://api.openai.com/v1"
-                  className="w-full px-3 py-2 bg-[#000] border border-[#2f3336] rounded-lg text-xs text-[#e7e9ea] focus:outline-none focus:border-twitter-blue"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-[#71767b] mb-1">
-                  Model Name
-                </label>
-                <input
-                  type="text"
-                  value={settings.openAiModel}
-                  onChange={(e) => updateSettings({ openAiModel: e.target.value })}
-                  placeholder="gpt-4o-mini"
-                  className="w-full px-3 py-2 bg-[#000] border border-[#2f3336] rounded-lg text-xs text-[#e7e9ea] focus:outline-none focus:border-twitter-blue"
-                />
-              </div>
+              {(!OPENROUTER_PRESET_MODELS.some((m) => m.id === settings.openRouterModel) ||
+                settings.openRouterModel === 'custom') && (
+                <div>
+                  <label className="block text-xs font-bold text-[#71767b] mb-1">
+                    Custom OpenRouter Model ID
+                  </label>
+                  <input
+                    type="text"
+                    value={
+                      settings.openRouterModel === 'custom' ? '' : settings.openRouterModel
+                    }
+                    onChange={(e) => updateSettings({ openRouterModel: e.target.value })}
+                    placeholder="e.g. google/gemini-2.0-flash-001"
+                    className="w-full px-3 py-2 bg-[#000] border border-[#2f3336] rounded-lg text-xs text-[#e7e9ea] focus:outline-none focus:border-twitter-blue font-mono"
+                  />
+                </div>
+              )}
             </div>
           )}
         </div>

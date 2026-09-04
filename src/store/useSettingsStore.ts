@@ -10,7 +10,7 @@ interface SettingsState {
   isCharacterModalOpen: boolean;
   isEventTriggerOpen: boolean;
   isComposeModalOpen: boolean;
-  activeView: 'feed' | 'world' | 'characters' | 'notifications' | 'profile';
+  activeView: 'feed' | 'world' | 'characters' | 'notifications' | 'profile' | 'messages';
 
   updateSettings: (partial: Partial<AISettings>) => void;
   setSettingsOpen: (open: boolean) => void;
@@ -19,18 +19,16 @@ interface SettingsState {
   setCharacterModalOpen: (open: boolean) => void;
   setEventTriggerOpen: (open: boolean) => void;
   setComposeModalOpen: (open: boolean) => void;
-  setActiveView: (view: 'feed' | 'world' | 'characters' | 'notifications' | 'profile') => void;
+  setActiveView: (view: 'feed' | 'world' | 'characters' | 'notifications' | 'profile' | 'messages') => void;
   setThemeMode: (mode: ThemeMode) => void;
   setAccentColor: (color: string) => void;
 }
 
 const defaultSettings: AISettings = {
-  provider: 'simulation',
-  geminiApiKey: '',
-  geminiModel: 'gemini-2.5-flash',
-  openAiApiKey: '',
-  openAiBaseUrl: 'https://api.openai.com/v1',
-  openAiModel: 'gpt-4o-mini',
+  provider: 'openrouter',
+  openRouterApiKey: '',
+  openRouterModel: 'sao10k/l3.3-euryale-70b',
+  openRouterSiteUrl: '',
   simulationSpeed: 'normal',
   autonomousFeed: true,
   autonomousIntervalSeconds: 35,
@@ -78,6 +76,10 @@ export const useSettingsStore = create<SettingsState>()(
     }),
     {
       name: 'sniffer_settings_store_v1',
+      partialize: (state) => ({
+        settings: state.settings,
+        activeView: state.activeView,
+      }),
     }
   )
 );

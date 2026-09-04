@@ -6,7 +6,7 @@ interface ModalProps {
   onClose: () => void;
   title?: string;
   children: React.ReactNode;
-  maxWidth?: 'sm' | 'md' | 'lg' | 'xl';
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
 }
 
 export const Modal: React.FC<ModalProps> = ({
@@ -37,6 +37,7 @@ export const Modal: React.FC<ModalProps> = ({
     md: 'max-w-md',
     lg: 'max-w-lg',
     xl: 'max-w-xl',
+    '2xl': 'max-w-2xl',
   }[maxWidth];
 
   return (
@@ -65,7 +66,7 @@ export const Modal: React.FC<ModalProps> = ({
         </div>
 
         {/* Body content */}
-        <div className="overflow-y-auto px-4 py-4 space-y-4 text-[#e7e9ea]">
+        <div className="overflow-y-auto px-4 py-4 pb-6 space-y-4 text-[#e7e9ea] overscroll-contain">
           {children}
         </div>
       </div>
