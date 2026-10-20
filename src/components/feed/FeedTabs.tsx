@@ -11,18 +11,18 @@ export const FeedTabs: React.FC = () => {
   ];
 
   return (
-    <div className="sticky top-0 lg:top-0 z-20 bg-black/80 backdrop-blur-md border-b border-[#2f3336] flex">
+    <div className="sticky top-0 lg:top-0 z-20 bg-[var(--bg-primary)]/80 backdrop-blur-md border-b border-[#2f3336] flex">
       {tabs.map((tab) => {
         const isActive = activeFilterTab === tab.id;
         return (
           <button
             key={tab.id}
             onClick={() => setActiveFilterTab(tab.id)}
-            className="flex-1 py-3.5 hover:bg-[#181818]/60 transition-colors flex justify-center items-center relative text-sm font-semibold"
+            className="flex-1 py-3.5 hover:bg-neutral-500/10 transition-colors flex justify-center items-center relative text-sm font-semibold"
           >
             <span
               className={`transition-colors ${
-                isActive ? 'text-[#e7e9ea] font-bold' : 'text-[#71767b]'
+                isActive ? 'text-[var(--text-primary)] font-bold' : 'text-[#71767b]'
               }`}
             >
               {tab.label}

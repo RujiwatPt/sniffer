@@ -32,15 +32,15 @@ export const RightSidebar: React.FC = () => {
   return (
     <aside className="hidden lg:flex flex-col w-80 xl:w-88 h-screen sticky top-0 px-4 py-3 space-y-4 overflow-y-auto border-l border-[#2f3336]">
       {/* Search Bar */}
-      <div className="sticky top-0 bg-black/80 backdrop-blur-md pb-2 z-10">
-        <div className="relative flex items-center bg-[#202327] rounded-full focus-within:bg-black focus-within:ring-1 focus-within:ring-twitter-blue transition-all">
+      <div className="sticky top-0 bg-[var(--bg-primary)]/80 backdrop-blur-md pb-2 z-10">
+        <div className="relative flex items-center bg-[#202327] rounded-full focus-within:bg-[var(--bg-primary)] focus-within:ring-1 focus-within:ring-twitter-blue transition-all">
           <Search className="w-4 h-4 ml-4 text-[#71767b] shrink-0" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={`Search in ${activeWorld.name}...`}
-            className="w-full bg-transparent px-3 py-2.5 text-sm text-[#e7e9ea] placeholder-[#71767b] focus:outline-none"
+            className="w-full bg-transparent px-3 py-2.5 text-sm text-[var(--text-primary)] placeholder-[#71767b] focus:outline-none"
           />
         </div>
       </div>

@@ -17,7 +17,7 @@ export const MobileHeader: React.FC = () => {
   return (
     <header
       style={{ paddingTop: 'max(0.625rem, env(safe-area-inset-top))' }}
-      className="sm:hidden sticky top-0 z-30 flex items-center justify-between px-3 py-2.5 bg-black/90 backdrop-blur-md border-b border-[#2f3336]"
+      className="sm:hidden sticky top-0 z-30 flex items-center justify-between px-3 py-2.5 bg-[var(--bg-primary)]/90 backdrop-blur-md border-b border-[#2f3336]"
     >
       {/* Profile Button */}
       <button
@@ -31,10 +31,10 @@ export const MobileHeader: React.FC = () => {
       {/* Center Brand + World Switcher */}
       <button
         onClick={() => setWorldSelectorOpen(true)}
-        className="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#16181c] border border-[#2f3336] active:scale-95 transition-transform max-w-[55%] truncate"
+        className="flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[var(--bg-secondary)] border border-[#2f3336] active:scale-95 transition-transform max-w-[55%] truncate"
       >
         <Radio className="w-3.5 h-3.5 text-twitter-blue animate-pulse shrink-0" />
-        <span className="text-xs font-bold text-[#e7e9ea] truncate">
+        <span className="text-xs font-bold text-[var(--text-primary)] truncate">
           {activeWorld.name}
         </span>
         <Globe className="w-3.5 h-3.5 text-[#71767b] shrink-0" />
@@ -52,7 +52,7 @@ export const MobileHeader: React.FC = () => {
         </button>
         <button
           onClick={() => setSettingsOpen(true)}
-          className="p-1.5 text-[#71767b] hover:text-[#e7e9ea] hover:bg-[#181818] rounded-full transition-colors"
+          className="p-1.5 text-[#71767b] hover:text-[var(--text-primary)] hover:bg-neutral-500/10 rounded-full transition-colors"
           aria-label="Settings"
         >
           <Settings className="w-4 h-4" />

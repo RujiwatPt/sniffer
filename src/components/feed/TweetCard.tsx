@@ -65,6 +65,7 @@ export const TweetCard: React.FC<TweetCardProps> = ({
   const isLiked = post.likedBy.includes(activeUser.id);
   const isReposted = post.repostedBy.includes(activeUser.id);
   const isBookmarked = post.bookmarkedBy.includes(activeUser.id);
+  const authorRelationship = !author.isUser ? getRelationship(author.id, activeWorld.id) : null;
 
   const formatTimestamp = (ts: number) => {
     const diff = Math.max(0, Date.now() - ts);
@@ -147,11 +148,11 @@ export const TweetCard: React.FC<TweetCardProps> = ({
               </time>
 
               {/* Character Relationship Badge if not player */}
-              {!author.isUser && (
+              {authorRelationship && (
                 <div className="hidden sm:inline-block ml-1">
                   <RelationshipBadge
-                    affinity={getRelationship(author.id, activeWorld.id).affinity}
-                    tier={getRelationship(author.id, activeWorld.id).tier}
+                    affinity={authorRelationship.affinity}
+                    tier={authorRelationship.tier}
                     size="xs"
                   />
                 </div>

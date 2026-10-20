@@ -27,9 +27,9 @@ export const UserProfileView: React.FC = () => {
   return (
     <div className="flex-1 flex flex-col">
       {/* Top Bar */}
-      <div className="sticky top-0 z-20 bg-black/80 backdrop-blur-md px-4 py-2 border-b border-[#2f3336] flex items-center space-x-4">
+      <div className="sticky top-0 z-20 bg-[var(--bg-primary)]/80 backdrop-blur-md px-4 py-2 border-b border-[#2f3336] flex items-center space-x-4">
         <div>
-          <h2 className="text-lg font-extrabold text-[#e7e9ea] leading-tight flex items-center">
+          <h2 className="text-lg font-extrabold text-[var(--text-primary)] leading-tight flex items-center">
             {activeUser.name}
             {activeUser.verified && (
               <VerifiedBadge type={activeUser.verifiedType} size={15} />
@@ -56,8 +56,8 @@ export const UserProfileView: React.FC = () => {
       {/* Profile Details Header */}
       <div className="px-4 pb-4 border-b border-[#2f3336] relative">
         <div className="flex justify-between items-end -mt-14 mb-3">
-          <div className="p-1 bg-black rounded-full inline-block">
-            <Avatar src={activeUser.avatar} name={activeUser.name} size="xl" className="border-4 border-black" />
+          <div className="p-1 bg-[var(--bg-primary)] rounded-full inline-block">
+            <Avatar src={activeUser.avatar} name={activeUser.name} size="xl" className="border-4 border-[var(--bg-primary)]" />
           </div>
 
           <div className="flex items-center space-x-2">

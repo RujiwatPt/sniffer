@@ -258,7 +258,7 @@ export const InteractiveEncounterModal: React.FC = () => {
               </p>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-black/60 border border-[#2f3336] text-xs text-[#e7e9ea] leading-relaxed italic">
+            <div className="p-3.5 rounded-xl bg-[var(--bg-primary)]/60 border border-[#2f3336] text-xs text-[#e7e9ea] leading-relaxed italic">
               "{outcomeResult}"
             </div>
 
@@ -368,7 +368,7 @@ export const InteractiveEncounterModal: React.FC = () => {
                         {Object.entries(opt.statChanges).map(([stat, val]) => (
                           <span
                             key={stat}
-                            className="px-1.5 py-0.5 rounded bg-black/40 text-amber-300 border border-amber-900/40 shrink-0"
+                            className="px-1.5 py-0.5 rounded bg-[var(--bg-primary)]/40 text-amber-300 border border-amber-900/40 shrink-0"
                           >
                             +{val} {stat}
                           </span>

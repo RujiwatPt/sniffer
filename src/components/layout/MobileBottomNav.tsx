@@ -47,7 +47,7 @@ export const MobileBottomNav: React.FC = () => {
       {/* Bottom Navigation Bar */}
       <nav
         style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}
-        className="sm:hidden fixed bottom-0 left-0 right-0 z-30 bg-black/95 backdrop-blur-md border-t border-[#2f3336] flex items-center justify-around pt-2"
+        className="sm:hidden fixed bottom-0 left-0 right-0 z-30 bg-[var(--bg-primary)]/95 backdrop-blur-md border-t border-[#2f3336] flex items-center justify-around pt-2"
       >
         {tabs.map((tab) => {
           const Icon = tab.icon;
@@ -56,7 +56,7 @@ export const MobileBottomNav: React.FC = () => {
             <button
               key={tab.id}
               onClick={() => setActiveView(tab.id)}
-              className="flex flex-col items-center justify-center p-2 relative text-[#71767b] hover:text-[#e7e9ea]"
+              className="flex flex-col items-center justify-center p-2 relative text-[#71767b] hover:text-[var(--text-primary)]"
             >
               <div className="relative">
                 <Icon

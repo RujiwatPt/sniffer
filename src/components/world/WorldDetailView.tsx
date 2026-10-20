@@ -148,7 +148,7 @@ export const WorldDetailView: React.FC = () => {
               <div key={m.id} className="p-3.5 space-y-1 hover:bg-[#1f2227] transition-colors">
                 <div className="flex items-center justify-between text-[11px]">
                   <div className="flex items-center space-x-2">
-                    <span className="font-mono text-[9px] uppercase px-1.5 py-0.5 rounded bg-black text-twitter-blue border border-twitter-blue/30 font-bold">
+                    <span className="font-mono text-[9px] uppercase px-1.5 py-0.5 rounded bg-[var(--bg-primary)] text-twitter-blue border border-twitter-blue/30 font-bold">
                       {m.category}
                     </span>
                     <span className="font-bold text-[#e7e9ea]">@{m.actorHandle}</span>

@@ -45,9 +45,9 @@ export const CharacterRoster: React.FC = () => {
   return (
     <div className="flex-1 flex flex-col">
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-black/80 backdrop-blur-md px-4 py-3 border-b border-[#2f3336] flex items-center justify-between">
+      <div className="sticky top-0 z-20 bg-[var(--bg-primary)]/80 backdrop-blur-md px-4 py-3 border-b border-[#2f3336] flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-extrabold text-[#e7e9ea]">Character Directory</h2>
+          <h2 className="text-xl font-extrabold text-[var(--text-primary)]">Character Directory</h2>
           <p className="text-xs text-[#71767b]">
             {characters.length} active personas in {activeWorld.name}
           </p>
@@ -65,7 +65,7 @@ export const CharacterRoster: React.FC = () => {
 
           <button
             onClick={() => setCharacterModalOpen(true)}
-            className="px-3.5 py-1.5 border border-[#2f3336] hover:bg-[#181818] text-[#e7e9ea] font-bold rounded-full text-xs flex items-center space-x-1.5 transition-all"
+            className="px-3.5 py-1.5 border border-[#2f3336] hover:bg-neutral-500/10 text-[var(--text-primary)] font-bold rounded-full text-xs flex items-center space-x-1.5 transition-all"
           >
             <UserPlus className="w-3.5 h-3.5" />
             <span>New Persona</span>

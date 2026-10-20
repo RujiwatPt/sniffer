@@ -34,9 +34,9 @@ export const NotificationsView: React.FC = () => {
   return (
     <div className="flex-1 flex flex-col">
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-black/80 backdrop-blur-md px-4 py-3 border-b border-[#2f3336] flex items-center justify-between">
+      <div className="sticky top-0 z-20 bg-[var(--bg-primary)]/80 backdrop-blur-md px-4 py-3 border-b border-[#2f3336] flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-extrabold text-[#e7e9ea]">Notifications</h2>
+          <h2 className="text-xl font-extrabold text-[var(--text-primary)]">Notifications</h2>
           <p className="text-xs text-[#71767b]">
             Simulation interactions in {activeWorld.name}
           </p>
@@ -72,7 +72,7 @@ export const NotificationsView: React.FC = () => {
                     setSelectedThreadPostId(notif.targetPostId);
                   }
                 }}
-                className={`p-4 transition-colors cursor-pointer flex space-x-3 hover:bg-[#0a0b0c] ${
+                className={`p-4 transition-colors cursor-pointer flex space-x-3 hover:bg-neutral-500/10 ${
                   !notif.read ? 'bg-twitter-blue/5' : ''
                 }`}
               >
@@ -97,7 +97,7 @@ export const NotificationsView: React.FC = () => {
                   {actor && (
                     <div className="flex items-center space-x-2">
                       <Avatar src={actor.avatar} name={actor.name} size="sm" />
-                      <span className="font-bold text-sm text-[#e7e9ea] truncate">
+                      <span className="font-bold text-sm text-[var(--text-primary)] truncate">
                         {actor.name}
                       </span>
                       {actor.verified && (
@@ -121,7 +121,7 @@ export const NotificationsView: React.FC = () => {
                   </div>
 
                   {notif.contentPreview && (
-                    <p className="text-sm text-[#e7e9ea] italic bg-[#16181c] p-2 rounded-xl border border-[#2f3336]">
+                    <p className="text-sm text-[var(--text-primary)] italic bg-[var(--bg-secondary)] p-2 rounded-xl border border-[#2f3336]">
                       "{notif.contentPreview}"
                     </p>
                   )}

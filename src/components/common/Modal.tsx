@@ -49,24 +49,24 @@ export const Modal: React.FC<ModalProps> = ({
       <div
         role="dialog"
         aria-modal="true"
-        className={`relative z-10 w-full ${maxWidthClasses} bg-[#000000] border border-[#2f3336] rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[94vh] sm:max-h-[90vh]`}
+        className={`relative z-10 w-full ${maxWidthClasses} bg-[var(--bg-primary)] border border-[#2f3336] rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[94vh] sm:max-h-[90vh]`}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-[#2f3336]">
           <div className="flex items-center space-x-3">
             <button
               onClick={onClose}
-              className="p-2 -ml-2 text-[#e7e9ea] hover:bg-[#181818] rounded-full transition-colors"
+              className="p-2 -ml-2 text-[var(--text-primary)] hover:bg-neutral-500/10 rounded-full transition-colors"
               aria-label="Close"
             >
               <X className="w-5 h-5" />
             </button>
-            {title && <h2 className="text-lg font-bold text-[#e7e9ea]">{title}</h2>}
+            {title && <h2 className="text-lg font-bold text-[var(--text-primary)]">{title}</h2>}
           </div>
         </div>
 
         {/* Body content */}
-        <div className="overflow-y-auto px-4 py-4 pb-6 space-y-4 text-[#e7e9ea] overscroll-contain">
+        <div className="overflow-y-auto px-4 py-4 pb-6 space-y-4 text-[var(--text-primary)] overscroll-contain">
           {children}
         </div>
       </div>

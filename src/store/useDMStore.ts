@@ -77,7 +77,7 @@ export const useDMStore = create<DMStoreState>()(
         };
 
         set((state) => ({
-          threads: [newThread, ...state.threads],
+          threads: [newThread, ...state.threads].slice(0, 50),
           messages: {
             ...state.messages,
             [newThreadId]: [],
@@ -130,7 +130,7 @@ export const useDMStore = create<DMStoreState>()(
           return {
             messages: {
               ...state.messages,
-              [threadId]: [...currentMsgs, msg],
+              [threadId]: [...currentMsgs, msg].slice(-100),
             },
             threads: updatedThreads,
           };
@@ -171,7 +171,7 @@ export const useDMStore = create<DMStoreState>()(
           return {
             messages: {
               ...state.messages,
-              [threadId]: [...currentMsgs, msg],
+              [threadId]: [...currentMsgs, msg].slice(-100),
             },
             threads: updatedThreads,
           };

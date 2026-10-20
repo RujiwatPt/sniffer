@@ -19,19 +19,19 @@ export const TweetThreadModal: React.FC = () => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-sm overflow-hidden">
       {/* Thread Container */}
-      <div className="relative w-full max-w-2xl h-full sm:h-auto sm:max-h-[92vh] bg-black border sm:border-[#2f3336] sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+      <div className="relative w-full max-w-2xl h-full sm:h-auto sm:max-h-[92vh] bg-[var(--bg-primary)] text-[var(--text-primary)] border sm:border-[#2f3336] sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden">
         {/* Thread Header */}
-        <div className="sticky top-0 z-20 flex items-center px-4 py-3 bg-black/90 backdrop-blur-md border-b border-[#2f3336]">
+        <div className="sticky top-0 z-20 flex items-center px-4 py-3 bg-[var(--bg-primary)]/90 backdrop-blur-md border-b border-[#2f3336]">
           <button
             onClick={() => setSelectedThreadPostId(null)}
-            className="p-2 -ml-2 text-[#e7e9ea] hover:bg-[#181818] rounded-full transition-colors mr-4"
+            className="p-2 -ml-2 text-[var(--text-primary)] hover:bg-neutral-500/10 rounded-full transition-colors mr-4"
             aria-label="Back"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="flex items-center space-x-2">
             <MessageCircle className="w-5 h-5 text-twitter-blue" />
-            <h2 className="text-lg font-bold text-[#e7e9ea]">Thread</h2>
+            <h2 className="text-lg font-bold text-[var(--text-primary)]">Thread</h2>
           </div>
         </div>
 

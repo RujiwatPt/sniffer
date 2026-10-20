@@ -254,6 +254,18 @@ const ARCHETYPE_PATTERNS: Record<CharacterArchetype, {
  */
 export class SimulationEngine {
   /**
+   * Fisher-Yates unbiased array shuffle
+   */
+  private static shuffle<T>(items: T[]): T[] {
+    const copy = [...items];
+    for (let i = copy.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+  }
+
+  /**
    * Generates an interactive wave of character responses to a post
    */
   static generateReactionWave(
@@ -272,8 +284,8 @@ export class SimulationEngine {
     // Determine how many characters will react (3 to 6 characters)
     const count = Math.min(candidateCharacters.length, Math.floor(Math.random() * 4) + 3);
     
-    // Shuffle and pick
-    const shuffled = [...candidateCharacters].sort(() => 0.5 - Math.random());
+    // Unbiased shuffle and pick
+    const shuffled = this.shuffle(candidateCharacters);
     const reactingCharacters = shuffled.slice(0, count);
 
     const replies: GeneratedReply[] = [];
@@ -705,7 +717,7 @@ export class SimulationEngine {
    */
   static generateEncounter(world: World, characters: Character[]): WorldEncounter {
     const npcs = characters.filter((c) => !c.isUser);
-    const shuffled = [...npcs].sort(() => 0.5 - Math.random());
+    const shuffled = this.shuffle(npcs);
     const charA = shuffled[0] || this.generateProceduralCharacter(world);
     const hasSecondNpc = shuffled.length > 1 && Math.random() > 0.35;
     const charB = hasSecondNpc ? shuffled[1] : undefined;

@@ -133,13 +133,24 @@ export const SettingsModal: React.FC = () => {
                 <label className="block text-xs font-bold text-[#71767b] mb-1">
                   OpenRouter API Key
                 </label>
-                <input
-                  type="password"
-                  value={settings.openRouterApiKey}
-                  onChange={(e) => updateSettings({ openRouterApiKey: e.target.value })}
-                  placeholder="sk-or-v1-..."
-                  className="w-full px-3 py-2 bg-[#000] border border-[#2f3336] rounded-lg text-xs text-[#e7e9ea] focus:outline-none focus:border-twitter-blue"
-                />
+                <div className="relative">
+                  <input
+                    type="password"
+                    value={settings.openRouterApiKey}
+                    onChange={(e) => updateSettings({ openRouterApiKey: e.target.value })}
+                    placeholder="sk-or-v1-..."
+                    className="w-full px-3 py-2 pr-16 bg-[#000] border border-[#2f3336] rounded-lg text-xs text-[#e7e9ea] focus:outline-none focus:border-twitter-blue"
+                  />
+                  {settings.openRouterApiKey && (
+                    <button
+                      type="button"
+                      onClick={() => updateSettings({ openRouterApiKey: '' })}
+                      className="absolute right-2 top-2 text-[10px] text-[#71767b] hover:text-rose-400 font-semibold"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
                 <p className="text-[10px] text-[#71767b] mt-1">
                   Get your key at{' '}
                   <a

@@ -128,4 +128,19 @@ describe('Direct Messages System', () => {
     expect(typeof friendlyReply).toBe('string');
     expect(friendlyReply.length).toBeGreaterThan(0);
   });
+
+  it('caps messages per thread at 100 to prevent unbounded storage', () => {
+    const store = useDMStore.getState();
+    const thread = store.getOrCreateThread('world_cyberpunk', mockUser.id, mockNPC.id);
+
+    // Send 110 messages
+    for (let i = 0; i < 110; i++) {
+      store.sendMessage(thread.id, mockUser.id, mockNPC.id, `Message ${i}`);
+    }
+
+    const messages = store.getThreadMessages(thread.id);
+    expect(messages.length).toBe(100);
+    expect(messages[0].content).toBe('Message 10');
+    expect(messages[99].content).toBe('Message 109');
+  });
 });

@@ -93,7 +93,7 @@ export const DirectMessagesView: React.FC = () => {
   });
 
   return (
-    <div className="flex-1 flex flex-col h-[calc(100vh-3.5rem)] sm:h-screen overflow-hidden bg-black text-[#e7e9ea]">
+    <div className="flex-1 flex flex-col h-[calc(100vh-3.5rem)] sm:h-screen overflow-hidden bg-[var(--bg-primary)] text-[var(--text-primary)]">
       {!activeThreadId || !activeNPC || !activeRelationship ? (
         /* View 1: Threads List (Inbox) */
         <div className="flex-1 flex flex-col h-full">
@@ -105,7 +105,7 @@ export const DirectMessagesView: React.FC = () => {
             </div>
             <button
               onClick={() => setNewChatModalOpen(true)}
-              className="p-2.5 rounded-full hover:bg-[#181818] text-[#e7e9ea] hover:text-twitter-blue transition-colors"
+              className="p-2.5 rounded-full hover:bg-neutral-500/10 text-[var(--text-primary)] hover:text-twitter-blue transition-colors"
               title="New Message"
             >
               <Plus className="w-5 h-5" />
@@ -220,11 +220,11 @@ export const DirectMessagesView: React.FC = () => {
         /* View 2: Active Chat Conversation */
         <div className="flex-1 flex flex-col h-full">
           {/* Chat Top Header */}
-          <div className="p-3 sm:px-4 sm:py-3 border-b border-[#2f3336] bg-black/80 backdrop-blur-md flex items-center justify-between sticky top-0 z-10">
+          <div className="p-3 sm:px-4 sm:py-3 border-b border-[#2f3336] bg-[var(--bg-primary)]/80 backdrop-blur-md flex items-center justify-between sticky top-0 z-10">
             <div className="flex items-center space-x-3 truncate">
               <button
                 onClick={() => setActiveThreadId(null)}
-                className="p-1.5 -ml-1 text-[#71767b] hover:text-[#e7e9ea] hover:bg-[#181818] rounded-full transition-colors shrink-0"
+                className="p-1.5 -ml-1 text-[#71767b] hover:text-[var(--text-primary)] hover:bg-neutral-500/10 rounded-full transition-colors shrink-0"
                 title="Back to Messages"
               >
                 <ArrowLeft className="w-5 h-5" />
@@ -362,14 +362,14 @@ export const DirectMessagesView: React.FC = () => {
           {/* Message Composer Footer */}
           <form
             onSubmit={handleSendMessage}
-            className="p-3 sm:p-4 border-t border-[#2f3336] bg-black flex items-center space-x-2"
+            className="p-3 sm:p-4 border-t border-[#2f3336] bg-[var(--bg-primary)] flex items-center space-x-2"
           >
             <input
               type="text"
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               placeholder={`Message @${activeNPC.handle}...`}
-              className="flex-1 px-4 py-2.5 bg-[#16181c] border border-[#2f3336] rounded-full text-sm text-[#e7e9ea] focus:outline-none focus:border-twitter-blue"
+              className="flex-1 px-4 py-2.5 bg-[var(--bg-secondary)] border border-[#2f3336] rounded-full text-sm text-[var(--text-primary)] focus:outline-none focus:border-twitter-blue"
             />
 
             <button
