@@ -9,7 +9,8 @@ import { RoleplayPromptBuilder } from './roleplayPromptBuilder';
 import { SimulationEngine } from './simulationEngine';
 
 export class OpenRouterProvider {
-  private static readonly BASE_URL = 'https://openrouter.ai/api/v1';
+  private static readonly DIRECT_URL = 'https://openrouter.ai/api/v1/chat/completions';
+  private static readonly PROXY_URL = '/api/openrouter/chat/completions';
 
   /**
    * Helper to perform authenticated OpenRouter chat completion requests
@@ -22,18 +23,19 @@ export class OpenRouterProvider {
     jsonMode = false,
     temperature = 0.8
   ): Promise<string | null> {
-    if (!apiKey) return null;
-
     try {
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
         'HTTP-Referer': siteUrl || (typeof window !== 'undefined' ? window.location.origin : 'https://sniffer.ai'),
         'X-Title': 'Sniffer AI Roleplay Social Simulation',
       };
 
+      if (apiKey && apiKey.trim().length > 0) {
+        headers['Authorization'] = `Bearer ${apiKey.trim()}`;
+      }
+
       const body: Record<string, unknown> = {
-        model: modelName || 'sao10k/l3.3-euryale-70b',
+        model: modelName || 'meta-llama/llama-3.3-70b-instruct',
         messages,
         temperature,
       };
@@ -42,7 +44,11 @@ export class OpenRouterProvider {
         body.response_format = { type: 'json_object' };
       }
 
-      const response = await fetch(`${this.BASE_URL}/chat/completions`, {
+      const endpoint = typeof window !== 'undefined'
+        ? this.PROXY_URL
+        : (apiKey ? this.DIRECT_URL : this.PROXY_URL);
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers,
         body: JSON.stringify(body),

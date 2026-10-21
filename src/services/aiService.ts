@@ -17,17 +17,24 @@ export class AIService {
     userCharacterId: string,
     timeOfDay?: TimeOfDay
   ): Promise<GeneratedWave> {
-    if (settings.provider === 'openrouter' && settings.openRouterApiKey) {
-      return OpenRouterProvider.generateWave(
-        settings.openRouterApiKey,
-        settings.openRouterModel,
-        settings.openRouterSiteUrl,
-        world,
-        characters,
-        post,
-        userCharacterId,
-        timeOfDay
-      );
+    if (settings.provider === 'openrouter') {
+      try {
+        const wave = await OpenRouterProvider.generateWave(
+          settings.openRouterApiKey,
+          settings.openRouterModel,
+          settings.openRouterSiteUrl,
+          world,
+          characters,
+          post,
+          userCharacterId,
+          timeOfDay
+        );
+        if (wave && wave.replies && wave.replies.length > 0) {
+          return wave;
+        }
+      } catch (err) {
+        console.warn('[AIService] OpenRouter wave failed, falling back to procedural engine:', err);
+      }
     }
 
     // Default: rich procedural simulation engine
@@ -45,20 +52,27 @@ export class AIService {
     dayNumber: number,
     timeOfDay: TimeOfDay
   ): Promise<string> {
-    if (settings.provider === 'openrouter' && settings.openRouterApiKey) {
-      return OpenRouterProvider.generateDMReply(
-        settings.openRouterApiKey,
-        settings.openRouterModel,
-        settings.openRouterSiteUrl,
-        world,
-        character,
-        userCharacter,
-        relationship,
-        conversationHistory,
-        userMessage,
-        dayNumber,
-        timeOfDay
-      );
+    if (settings.provider === 'openrouter') {
+      try {
+        const reply = await OpenRouterProvider.generateDMReply(
+          settings.openRouterApiKey,
+          settings.openRouterModel,
+          settings.openRouterSiteUrl,
+          world,
+          character,
+          userCharacter,
+          relationship,
+          conversationHistory,
+          userMessage,
+          dayNumber,
+          timeOfDay
+        );
+        if (reply && reply.trim().length > 0) {
+          return reply;
+        }
+      } catch (err) {
+        console.warn('[AIService] OpenRouter DM reply failed, falling back to procedural engine:', err);
+      }
     }
 
     // Default & offline fallback: procedural simulation

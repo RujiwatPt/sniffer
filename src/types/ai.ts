@@ -12,18 +12,11 @@ export interface OpenRouterModelOption {
 
 export const OPENROUTER_PRESET_MODELS: OpenRouterModelOption[] = [
   {
-    id: 'sao10k/l3.3-euryale-70b',
-    name: 'Sao10K: Euryale 70B',
-    tag: 'Default Roleplay',
-    speed: 'Standard',
-    description: 'Rich, immersive prose & deep character adherence.',
-  },
-  {
     id: 'meta-llama/llama-3.3-70b-instruct',
     name: 'Llama 3.3 70B Instruct',
-    tag: 'Fast & Smart',
+    tag: 'Default Roleplay',
     speed: 'Fast',
-    description: 'High intelligence, responsive dialogue and quick banter.',
+    description: 'High intelligence, responsive dialogue, quick banter, and deep character adherence.',
   },
   {
     id: 'nousresearch/hermes-4-70b',
@@ -31,6 +24,13 @@ export const OPENROUTER_PRESET_MODELS: OpenRouterModelOption[] = [
     tag: 'Reasoning & RP',
     speed: 'Standard',
     description: 'Advanced reasoning and creative dialogue dynamics.',
+  },
+  {
+    id: 'sao10k/l3.3-euryale-70b',
+    name: 'Sao10K: Euryale 70B',
+    tag: 'Legacy Roleplay',
+    speed: 'Standard',
+    description: 'Rich, immersive prose & character dialogue.',
   },
   {
     id: 'aion-labs/aion-3.0-mini',

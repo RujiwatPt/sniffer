@@ -138,7 +138,7 @@ export const SettingsModal: React.FC = () => {
                     type="password"
                     value={settings.openRouterApiKey}
                     onChange={(e) => updateSettings({ openRouterApiKey: e.target.value })}
-                    placeholder="sk-or-v1-..."
+                    placeholder="Optional: using server-side key by default"
                     className="w-full px-3 py-2 pr-16 bg-[#000] border border-[#2f3336] rounded-lg text-xs text-[#e7e9ea] focus:outline-none focus:border-twitter-blue"
                   />
                   {settings.openRouterApiKey && (
@@ -152,7 +152,7 @@ export const SettingsModal: React.FC = () => {
                   )}
                 </div>
                 <p className="text-[10px] text-[#71767b] mt-1">
-                  Get your key at{' '}
+                  Server proxy key is active. Enter your own key only to override.{' '}
                   <a
                     href="https://openrouter.ai/keys"
                     target="_blank"
