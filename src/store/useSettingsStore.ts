@@ -24,9 +24,14 @@ interface SettingsState {
   setAccentColor: (color: string) => void;
 }
 
+const envApiKey =
+  (typeof import.meta !== 'undefined' && import.meta.env
+    ? import.meta.env.VITE_OPENROUTER_API_KEY || import.meta.env.OPENROUTER_API_KEY
+    : '') || '';
+
 const defaultSettings: AISettings = {
   provider: 'openrouter',
-  openRouterApiKey: '',
+  openRouterApiKey: envApiKey,
   openRouterModel: 'sao10k/l3.3-euryale-70b',
   openRouterSiteUrl: '',
   simulationSpeed: 'normal',
@@ -80,6 +85,21 @@ export const useSettingsStore = create<SettingsState>()(
         settings: state.settings,
         activeView: state.activeView,
       }),
+      merge: (persistedState, currentState) => {
+        const persisted = (persistedState as Partial<SettingsState>) || {};
+        const mergedSettings = {
+          ...currentState.settings,
+          ...(persisted.settings || {}),
+        };
+        if (!mergedSettings.openRouterApiKey && envApiKey) {
+          mergedSettings.openRouterApiKey = envApiKey;
+        }
+        return {
+          ...currentState,
+          ...persisted,
+          settings: mergedSettings,
+        };
+      },
     }
   )
 );
