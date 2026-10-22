@@ -325,7 +325,7 @@ export class SimulationEngine {
       const targetParentId = firstReplyIds[idx % firstReplyIds.length] || post.id;
       const targetActor = directActors[idx % directActors.length];
 
-      const content = this.craftSubThreadReply(char, targetActor, world);
+      const content = this.craftSubThreadReply(char, targetActor, world, post);
 
       replies.push({
         characterId: char.id,
@@ -346,25 +346,131 @@ export class SimulationEngine {
   }
 
   /**
+   * Extracts significant topic keywords or key phrases from a post to ensure deep relevance
+   */
+  private static extractTopic(content: string): string {
+    // 1. Look for hashtags
+    const hashtags = content.match(/#(\w+)/g);
+    if (hashtags && hashtags.length > 0) {
+      return hashtags[0].replace('#', '');
+    }
+
+    // 2. Look for quoted phrases: "something" or 'something'
+    const quotes = content.match(/"([^"]+)"|'([^']+)'/);
+    if (quotes) {
+      const q = quotes[1] || quotes[2];
+      if (q && q.trim().length > 2) return q.trim();
+    }
+
+    // 3. Filter common stop words to isolate meaningful nouns and subjects
+    const stopWords = new Set([
+      'the', 'and', 'this', 'that', 'with', 'have', 'from', 'they', 'will',
+      'would', 'there', 'their', 'what', 'about', 'which', 'when', 'make',
+      'like', 'time', 'just', 'know', 'take', 'person', 'into', 'year', 'your',
+      'good', 'some', 'could', 'them', 'other', 'than', 'then', 'now', 'look',
+      'only', 'come', 'over', 'think', 'also', 'back', 'after', 'use', 'two',
+      'how', 'our', 'work', 'first', 'well', 'way', 'even', 'new', 'want',
+      'because', 'any', 'these', 'give', 'day', 'most', 'us', 'are', 'is', 'was',
+      'were', 'been', 'being', 'has', 'had', 'very', 'really', 'much', 'more',
+      'here', 'why', 'who', 'all', 'can', 'cant', 'cannot', 'posted', 'tweet'
+    ]);
+
+    const words = content
+      .replace(/[^\w\s]/g, ' ')
+      .split(/\s+/)
+      .filter((w) => w.length >= 3 && !stopWords.has(w.toLowerCase()));
+
+    if (words.length >= 2) {
+      return `${words[0]} ${words[1]}`.toLowerCase();
+    }
+
+    if (words.length === 1) {
+      return words[0].toLowerCase();
+    }
+
+    const clean = content.trim().replace(/[?!.,;]/g, '');
+    return clean.length > 25 ? clean.slice(0, 25).trim() : clean || 'this';
+  }
+
+  /**
    * Crafts an in-character contextual reply based on character personality, stance, and world lore
    */
   private static craftCharacterReply(char: Character, world: World, post: Post): string {
     const patterns = ARCHETYPE_PATTERNS[char.archetype] || ARCHETYPE_PATTERNS.shitposter;
-    
-    // Choose tone based on stance
-    let pool: string[];
-    if (char.stanceTowardsUser === 'admirer' || char.stanceTowardsUser === 'simp' || char.stanceTowardsUser === 'bestie') {
-      pool = patterns.agree;
-    } else if (char.stanceTowardsUser === 'hater' || char.stanceTowardsUser === 'rival') {
-      pool = Math.random() > 0.5 ? patterns.disagree : patterns.mock;
-    } else if (char.stanceTowardsUser === 'skeptic') {
-      pool = Math.random() > 0.5 ? patterns.question : patterns.disagree;
-    } else {
-      // Neutral - mix
-      pool = [...patterns.agree, ...patterns.disagree, ...patterns.question];
-    }
+    const topic = this.extractTopic(post.content);
 
-    let baseText = pool[Math.floor(Math.random() * pool.length)];
+    const topicDrivenTemplates: Record<CharacterArchetype, string[]> = {
+      shitposter: [
+        `bro really hopped on the timeline to talk about ${topic} 💀`,
+        `wait not ${topic} 😭 who let you cook`,
+        `everyone has an opinion on ${topic} until reality hits`,
+        `unpopular opinion: ${topic} is actually peak comedy`,
+        `lmao ${topic}?? in this economy?`,
+      ],
+      intellectual: [
+        `Your assertion regarding ${topic} fundamentally misinterprets the systemic variables at play.`,
+        `An intriguing perspective on ${topic}, though empirical precedence contradicts this thesis.`,
+        `One cannot analyze ${topic} in isolation without accounting for the secondary externalities.`,
+        `The discourse surrounding ${topic} consistently confuses correlation with causation.`,
+      ],
+      agitator: [
+        `${topic.toUpperCase()} IS EXACTLY WHAT THEY WANT US COMPLYING WITH!! WAKE UP!! 💥`,
+        `FINALLY SOMEONE BROUGHT UP ${topic.toUpperCase()}!! DO NOT BACK DOWN!! ⚡️`,
+        `THEY ARE SILENCING VOICES TALKING ABOUT ${topic.toUpperCase()}!! KEEP PUSHING!!`,
+        `NO COMPROMISE ON ${topic.toUpperCase()}!! SAY IT LOUDER FOR THE TIMELINE!! 🔥`,
+      ],
+      corporate_shill: [
+        `Our enterprise solutions team is actively monitoring discussions surrounding ${topic}. Synergy is key!`,
+        `A valuable stakeholder contribution regarding ${topic}. We are committed to optimized outcomes.`,
+        `Regarding ${topic}: Our compliance frameworks are operating at 99.9% uptime.`,
+      ],
+      wholesome: [
+        `Really appreciate your perspective on ${topic}! Sending so much positive energy your way 💖`,
+        `It takes courage to speak about ${topic}. Proud of you for sharing this! ✨`,
+        `Hoping everything works out wonderfully regarding ${topic}! Stay bright!`,
+      ],
+      conspiracy_theorist: [
+        `Notice how ${topic} trends right after the sector anomaly? Connect the dots!`,
+        `They want everyone distracted by ${topic} while the classified protocol executes.`,
+        `I warned the district about ${topic} weeks ago. Nobody wanted to believe it!`,
+      ],
+      celebrity: [
+        `My team and I were literally just discussing ${topic} backstage! Wild timing.`,
+        `Everyone in my mentions has been obsessing over ${topic} all day honestly.`,
+      ],
+      doomer: [
+        `Posting about ${topic} won't stop the inevitable cascade, but enjoy the illusion.`,
+        `Imagine thinking ${topic} matters in six months. It's already over.`,
+      ],
+      mystic: [
+        `The energetic resonance of ${topic} reveals what was hidden beneath the surface.`,
+        `Do not resist what ${topic} is teaching you; the timeline is aligning.`,
+      ],
+      technocrat: [
+        `Optimizing parameters for ${topic} yields an estimated 18.4% variance in system throughput.`,
+        `Algorithmic analysis of ${topic} reveals severe inefficiencies in the current pipeline.`,
+      ],
+    };
+
+    // 70% of the time, use a topic-driven contextual reply
+    let baseText: string;
+    if (Math.random() > 0.3 && topicDrivenTemplates[char.archetype]?.length > 0) {
+      const topicPool = topicDrivenTemplates[char.archetype];
+      baseText = topicPool[Math.floor(Math.random() * topicPool.length)];
+    } else {
+      // Choose tone based on stance from base patterns
+      let pool: string[];
+      if (char.stanceTowardsUser === 'admirer' || char.stanceTowardsUser === 'simp' || char.stanceTowardsUser === 'bestie') {
+        pool = patterns.agree;
+      } else if (char.stanceTowardsUser === 'hater' || char.stanceTowardsUser === 'rival') {
+        pool = Math.random() > 0.5 ? patterns.disagree : patterns.mock;
+      } else if (char.stanceTowardsUser === 'skeptic') {
+        pool = Math.random() > 0.5 ? patterns.question : patterns.disagree;
+      } else {
+        pool = [...patterns.agree, ...patterns.disagree, ...patterns.question];
+      }
+      baseText = pool[Math.floor(Math.random() * pool.length)];
+    }
 
     // Contextual response if replying to a question
     if (post.content.includes('?') && Math.random() > 0.5) {
@@ -376,9 +482,9 @@ export class SimulationEngine {
 
     // Contextual world flavor injection
     if (Math.random() > 0.4 && world.trendingTopics.length > 0) {
-      const topic = world.trendingTopics[Math.floor(Math.random() * world.trendingTopics.length)];
+      const topicTag = world.trendingTopics[Math.floor(Math.random() * world.trendingTopics.length)];
       if (Math.random() > 0.5) {
-        baseText += ` #${topic.tag}`;
+        baseText += ` #${topicTag.tag}`;
       }
     }
 
@@ -395,16 +501,17 @@ export class SimulationEngine {
   /**
    * Crafts a sub-thread retort between two characters
    */
-  private static craftSubThreadReply(char: Character, targetChar: Character, _world: World): string {
+  private static craftSubThreadReply(char: Character, targetChar: Character, _world: World, post?: Post): string {
     const targetHandle = `@${targetChar?.handle || 'user'}`;
+    const topic = post ? this.extractTopic(post.content) : 'this';
     const retorts = [
-      `${targetHandle} you always say this and you are consistently wrong`,
-      `${targetHandle} please sit this one out respectfully`,
-      `${targetHandle} don't engage with this, they want the attention`,
-      `${targetHandle} wait actually you cooked here`,
-      `${targetHandle} 100% agreed with you on this`,
-      `${targetHandle} not you defending this madness 💀`,
-      `${targetHandle} cite your sources or delete the tweet`,
+      `${targetHandle} you always say this about ${topic} and you are consistently wrong`,
+      `${targetHandle} please sit this one out regarding ${topic}`,
+      `${targetHandle} don't engage with this, they want the attention on ${topic}`,
+      `${targetHandle} wait actually you cooked on the ${topic} point`,
+      `${targetHandle} 100% agreed with you on ${topic}`,
+      `${targetHandle} not you defending ${topic} madness 💀`,
+      `${targetHandle} cite your sources on ${topic} or delete the tweet`,
     ];
 
     let retort = retorts[Math.floor(Math.random() * retorts.length)];

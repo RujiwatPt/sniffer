@@ -80,6 +80,22 @@ export const useSettingsStore = create<SettingsState>()(
         settings: state.settings,
         activeView: state.activeView,
       }),
+      merge: (persistedState, currentState) => {
+        const persisted = (persistedState as Partial<SettingsState>) || {};
+        const mergedSettings = {
+          ...currentState.settings,
+          ...(persisted.settings || {}),
+        };
+        // Automatically migrate deprecated/retired models stored in client localStorage
+        if (!mergedSettings.openRouterModel || mergedSettings.openRouterModel.includes('euryale')) {
+          mergedSettings.openRouterModel = 'meta-llama/llama-3.3-70b-instruct';
+        }
+        return {
+          ...currentState,
+          ...persisted,
+          settings: mergedSettings,
+        };
+      },
     }
   )
 );

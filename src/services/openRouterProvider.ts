@@ -110,18 +110,21 @@ TWEET BEING REACTED TO:
 AVAILABLE CHARACTERS IN THIS UNIVERSE:
 ${JSON.stringify(rosterSummary, null, 2)}
 
-INSTRUCTIONS:
-Generate 4 to 6 distinct, vivid in-character replies that feel like a fast-moving, chaotic Twitter/X comment section.
-IMPORTANT INTERACTION REQUIREMENT:
+CRITICAL TOPIC RELEVANCE REQUIREMENT:
+- Every reply MUST directly reference, debate, critique, joke about, or answer the specific topic, claims, nouns, questions, or situation described in the tweet: "${post.content}".
+- NEVER give generic boilerplate replies (e.g. "so true", "disagreed", "what are you on"). Replies must be unmistakably tailored to the exact content of the tweet above!
+
+INTERACTION REQUIREMENT:
 - 2 to 4 replies should be direct responses to the original post.
 - 1 or 2 replies MUST be sub-replies that directly call out, quote, support, or roast one of the other characters' replies (e.g., start with "@<handle> ..."). NPCs should disagree, beef, or form alliances in the comments!
+- Stay 100% in character for each persona's archetype and speech style.
 
-Respond with JSON only:
+Respond strictly with valid JSON only (no markdown preamble):
 {
   "replies": [
     {
-      "characterId": "<id of character>",
-      "content": "<in-character tweet reply. If debating another NPC, include their @handle>",
+      "characterId": "<id of character from the available roster>",
+      "content": "<in-character tweet reply addressing the specific tweet topic>",
       "likesParent": true,
       "repostsParent": false
     }
@@ -133,7 +136,7 @@ Respond with JSON only:
       modelName,
       siteUrl,
       [{ role: 'user', content: systemPrompt }],
-      true,
+      false,
       0.85
     );
 
@@ -142,8 +145,13 @@ Respond with JSON only:
     }
 
     try {
-      // Clean possible markdown fences
-      const cleaned = rawText.replace(/```(?:json)?/g, '').replace(/```/g, '').trim();
+      // Clean possible markdown fences and isolate JSON object
+      let cleaned = rawText.replace(/```(?:json)?/g, '').replace(/```/g, '').trim();
+      const firstBrace = cleaned.indexOf('{');
+      const lastBrace = cleaned.lastIndexOf('}');
+      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+        cleaned = cleaned.substring(firstBrace, lastBrace + 1);
+      }
       const parsed = JSON.parse(cleaned);
       const rawReplies: Array<{
         characterId: string;
@@ -152,11 +160,21 @@ Respond with JSON only:
         repostsParent?: boolean;
       }> = parsed.replies || [];
 
+      if (!rawReplies.length) {
+        return SimulationEngine.generateReactionWave(world, characters, post, userCharacterId, timeOfDay);
+      }
+
+      const availableIds = new Set(availableCharacters.map((c) => c.id));
       let currentDelay = 800;
-      const formattedReplies: GeneratedReply[] = rawReplies.map((r) => {
+      const formattedReplies: GeneratedReply[] = rawReplies.map((r, idx) => {
         currentDelay += Math.floor(Math.random() * 1100) + 700;
+        // Validate character ID or fallback to round-robin from available roster
+        const validCharId = availableIds.has(r.characterId)
+          ? r.characterId
+          : availableCharacters[idx % availableCharacters.length].id;
+
         return {
-          characterId: r.characterId,
+          characterId: validCharId,
           content: r.content,
           replyToPostId: post.id,
           delayMs: currentDelay,

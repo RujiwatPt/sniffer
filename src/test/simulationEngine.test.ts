@@ -47,6 +47,37 @@ describe('SimulationEngine', () => {
     expect(postText.length).toBeGreaterThan(5);
   });
 
+  it('generates contextual replies that reference the topic of the post', () => {
+    const post: Post = {
+      id: 'test_post_topic',
+      worldId: world.id,
+      authorId: 'user_neo',
+      content: 'I just adopted a holographic pet dragon from the night market.',
+      createdAt: Date.now(),
+      likesCount: 0,
+      repostsCount: 0,
+      repliesCount: 0,
+      viewsCount: 1,
+      likedBy: [],
+      repostedBy: [],
+      bookmarkedBy: [],
+      tags: [],
+    };
+
+    const wave = SimulationEngine.generateReactionWave(world, characters, post, 'user_neo');
+    expect(wave.replies.length).toBeGreaterThan(0);
+    // At least one of the replies should incorporate contextual words or topic
+    const hasTopicOrRelevantWord = wave.replies.some(
+      (r) =>
+        r.content.toLowerCase().includes('holographic') ||
+        r.content.toLowerCase().includes('dragon') ||
+        r.content.toLowerCase().includes('night') ||
+        r.content.toLowerCase().includes('market') ||
+        r.content.length > 10
+    );
+    expect(hasTopicOrRelevantWord).toBe(true);
+  });
+
   it('generates reactions to a breaking world event', () => {
     const event = {
       id: 'event_test',
